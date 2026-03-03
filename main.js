@@ -1,60 +1,22 @@
-const poems = [
-  {
-    title: "Về quê",
-    category: "quê hương",
-    form: "lục bát",
-    file: "poems/ve-que.html"
-  },
-  {
-    title: "Bữa cơm chiều",
-    category: "gia đình",
-    form: "lục bát",
-    file: "poems/bua-com-chieu.html"
-  },
-  {
-    title: "Đời người",
-    category: "trải đời",
-    form: "tự do",
-    file: "poems/doi-nguoi.html"
-  },
-{
-  title: "Mẹ già",
-  category: "gia đình",
-  form: "lục bát",
-  file: "poems/me-gia.html"
-}
-];
+document.addEventListener("DOMContentLoaded", function(){
 
-const list = document.getElementById("poemList");
-const search = document.getElementById("search");
-const category = document.getElementById("category");
-const form = document.getElementById("form");
+    const menuLinks = document.querySelectorAll(".submenu a");
+    const mainMenus = document.querySelectorAll(".menu > li > a");
 
-function render() {
-  const s = search.value.toLowerCase();
-  const c = category.value;
-  const f = form.value;
+    menuLinks.forEach(link=>{
+        link.addEventListener("click", function(){
 
-  list.innerHTML = "";
+            // Xóa active cũ
+            mainMenus.forEach(m=>m.classList.remove("active"));
 
-  poems.filter(p =>
-    (!c || p.category === c) &&
-    (!f || p.form === f) &&
-    p.title.toLowerCase().includes(s)
-  ).forEach(p => {
-    list.innerHTML += `
-      <div class="poem-card">
-        <h2><a href="${p.file}">${p.title}</a></h2>
-        <div class="meta">
-          Chủ đề: ${p.category} • Thể thơ: ${p.form}
-        </div>
-      </div>
-    `;
-  });
-}
+            // Tìm menu cha
+            const parentMenu = this.closest("li")
+                .parentElement
+                .parentElement
+                .querySelector("a");
 
-search.oninput = render;
-category.onchange = render;
-form.onchange = render;
+            parentMenu.classList.add("active");
+        });
+    });
 
-render();
+});
