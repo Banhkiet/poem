@@ -13,26 +13,46 @@
     font-family: Arial, sans-serif;
 }
 
+body{
+    background:#f2f2f2;
+}
+
 /* ================= HEADER ================= */
 
 header{
-    background:url("header.jpg") center/cover no-repeat;
-    height:170px;
+    background:url("header.jpg") center center/cover no-repeat;
+    height:180px;
     display:flex;
     align-items:center;
     justify-content:center;
+    position:relative;
+    overflow:hidden;
 }
 
 .header-box{
     border:2px solid white;
-    padding:15px 80px;
+    padding:10px 60px;
 }
 
 .header-box h1{
     font-size:45px;
     color:black;
+    display:flex;
+}
+
+/* sóng chữ */
+.header-box span{
+    display:inline-block;
     font-weight:bold;
-    letter-spacing:3px;
+    animation: wave 2s infinite ease-in-out;
+}
+
+@keyframes wave{
+    0%   { transform: translateY(0px) translateX(0px); }
+    25%  { transform: translateY(-6px) translateX(2px); }
+    50%  { transform: translateY(0px) translateX(4px); }
+    75%  { transform: translateY(6px) translateX(2px); }
+    100% { transform: translateY(0px) translateX(0px); }
 }
 
 /* ================= MENU ================= */
@@ -49,17 +69,21 @@ nav{
 
 .menu li{
     padding:12px 40px;
-    color:black;
     font-weight:bold;
     position:relative;
-    cursor:pointer;
 }
 
 .menu li:hover{
     background:#2d8aa6;
 }
 
+.menu a{
+    text-decoration:none;
+    color:black;
+}
+
 /* dropdown */
+
 .submenu{
     display:none;
     position:absolute;
@@ -82,12 +106,15 @@ nav{
 
 main{
     background:#dcdcdc;
-    height:420px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-    color:#333;
+    height:500px;
+    padding:20px;
+}
+
+iframe{
+    width:100%;
+    height:100%;
+    border:none;
+    background:white;
 }
 
 /* ================= FOOTER ================= */
@@ -105,12 +132,11 @@ footer{
 }
 
 .footer-col{
-    width:23%;
+    width:30%;
     min-width:200px;
 }
 
 .footer-col h3{
-    font-size:18px;
     margin-bottom:10px;
 }
 
@@ -121,37 +147,21 @@ footer{
     margin-bottom:15px;
 }
 
-.footer-col p,
-.footer-col li{
-    font-size:14px;
-    color:#ccc;
-    margin:8px 0;
-}
-
 .footer-col ul{
     list-style:none;
 }
 
-/* Social buttons */
-
-.social-btn{
-    display:block;
-    margin:10px 0;
-    padding:10px;
-    color:white;
-    text-decoration:none;
-    font-size:14px;
+.footer-col li{
+    margin:8px 0;
 }
 
-.fb{ background:#3b5998; }
-.tw{ background:#1da1f2; }
-.ig{ background:#833ab4; }
-.li{ background:#0077b5; }
-.pin{ background:#bd081c; }
-.yt{ background:#ff0000; }
+.footer-col a{
+    text-decoration:none;
+    color:#ccc;
+}
 
-.social-btn:hover{
-    opacity:0.8;
+.footer-col a:hover{
+    color:yellow;
 }
 
 </style>
@@ -160,90 +170,87 @@ footer{
 
 <header>
     <div class="header-box">
-        <h1>NGUYỄN BÀNH</h1>
+        <h1 id="waveText"></h1>
     </div>
 </header>
 
 <nav>
-    <ul class="menu">
-        <li>TỰ ĐỘNG
-            <ul class="submenu">
-                <li>SCADA</li>
-                <li>HMI UNIFIED</li>
-                <li>BMS</li>
-            </ul>
-        </li>
-
-        <li>MẠCH & VI MẠCH
-            <ul class="submenu">
-                <li>CHIP</li>
-                <li>MẠCH</li>
-                <li>PLB</li>
-            </ul>
-        </li>
-
-        <li>THƠ
-            <ul class="submenu">
-                <li>THƠ CỦA BÀNH</li>
-                <li>PHÂN TÍCH Ý NGHĨA</li>
-            </ul>
-        </li>
-
-        <li>ĐÓNG GÓP
-            <ul class="submenu">
-                <li>TỰ ĐỘNG</li>
-                <li>MẠCH & VI MẠCH</li>
-                <li>THƠ</li>
-            </ul>
-        </li>
+<ul class="menu">
+<li>TỰ ĐỘNG
+    <ul class="submenu">
+        <li><a href="scada.html" target="contentFrame">SCADA</a></li>
+        <li><a href="hmi.html" target="contentFrame">HMI UNIFIED</a></li>
+        <li><a href="bms.html" target="contentFrame">BMS</a></li>
     </ul>
+</li>
+
+<li>MẠCH & VI MẠCH
+    <ul class="submenu">
+        <li><a href="chip.html" target="contentFrame">CHIP</a></li>
+        <li><a href="mach.html" target="contentFrame">MẠCH</a></li>
+        <li><a href="plb.html" target="contentFrame">PLB</a></li>
+    </ul>
+</li>
+
+<li>THƠ
+    <ul class="submenu">
+        <li><a href="tho-banh.html" target="contentFrame">THƠ CỦA BÀNH</a></li>
+        <li><a href="phan-tich.html" target="contentFrame">Ý NGHĨA THƠ</a></li>
+    </ul>
+</li>
+
+<li>ĐÓNG GÓP
+    <ul class="submenu">
+        <li><a href="donggop-auto.html" target="contentFrame">TỰ ĐỘNG</a></li>
+        <li><a href="donggop-mach.html" target="contentFrame">MẠCH & VI MẠCH</a></li>
+        <li><a href="donggop-tho.html" target="contentFrame">THƠ</a></li>
+    </ul>
+</li>
+</ul>
 </nav>
 
 <main>
-    PHẦN NỘI DUNG
+    <iframe name="contentFrame" src=""></iframe>
 </main>
 
 <footer>
-    <div class="footer-container">
+<div class="footer-container">
 
-        <div class="footer-col">
-            <h3>Thông tin liên hệ</h3>
-            <div class="orange-line"></div>
-            <p>Văn NB – Website tổng hợp truyện, cổ tích...</p>
-            <p>Địa chỉ: TP.HCM</p>
-            <p>Điện thoại: 039456153</p>
-            <p>Email: vannb@gmail.com</p>
-        </div>
+<div class="footer-col">
+<h3>Thông tin</h3>
+<div class="orange-line"></div>
+<p>Website cá nhân Nguyễn Bành</p>
+</div>
 
-        <div class="footer-col">
-            <h3>Về chúng tôi</h3>
-            <div class="orange-line"></div>
-            <ul>
-                <li>Giới thiệu</li>
-                <li>Tác giả</li>
-                <li>Tài trợ</li>
-            </ul>
-        </div>
+<div class="footer-col">
+<h3>Về chúng tôi</h3>
+<div class="orange-line"></div>
+<ul>
+<li><a href="gioithieu.html" target="contentFrame">Giới thiệu</a></li>
+<li><a href="tacgia.html" target="contentFrame">Tác giả</a></li>
+</ul>
+</div>
 
-        <div class="footer-col">
-            <h3>Hỗ trợ</h3>
-            <div class="orange-line"></div>
-            <p>Support now 👉 Click here</p>
-        </div>
+<div class="footer-col">
+<h3>Liên hệ</h3>
+<div class="orange-line"></div>
+<p>Email: vannb@gmail.com</p>
+</div>
 
-        <div class="footer-col">
-            <h3>Theo dõi mạng xã hội</h3>
-            <div class="orange-line"></div>
-            <a href="#" class="social-btn fb">Facebook</a>
-            <a href="#" class="social-btn tw">Twitter</a>
-            <a href="#" class="social-btn ig">Instagram</a>
-            <a href="#" class="social-btn li">LinkedIn</a>
-            <a href="#" class="social-btn pin">Pinterest</a>
-            <a href="#" class="social-btn yt">YouTube</a>
-        </div>
-
-    </div>
+</div>
 </footer>
+
+<script>
+const text = "NGUYỄN BÀNH";
+const container = document.getElementById("waveText");
+
+text.split("").forEach((letter, index) => {
+    const span = document.createElement("span");
+    span.innerText = letter;
+    span.style.animationDelay = (index * 0.1) + "s";
+    container.appendChild(span);
+});
+</script>
 
 </body>
 </html>
