@@ -5,186 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nguyễn Bành</title>
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family: Arial, sans-serif;
-}
+<link rel="stylesheet" href="style.css">
 
-body{
-    background:#e6e6e6;
-}
-
-/* ================= CONTAINER GIỮA ================= */
-
-.container{
-    width:1100px;
-    margin:0 auto;
-    background:white;
-}
-
-/* ================= HEADER ================= */
-
-header{
-    background:url("header.jpg") center/cover no-repeat;
-    height:220px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-}
-
-.header-title{
-    font-size:60px;
-    font-weight:bold;
-    color:black;
-    letter-spacing:4px;
-    position:relative;
-    display:flex;
-}
-
-/* ================= MENU ================= */
-
-nav{
-    background:black;
-}
-
-.menu{
-    list-style:none;
-    display:flex;
-    justify-content:center;
-}
-
-.menu > li{
-    position:relative;
-    padding:15px 30px;
-}
-
-.menu > li > a{
-    color:white;
-    text-decoration:none;
-    font-weight:500;
-}
-
-.menu > li > a:hover{
-    color:yellow;
-}
-
-/* dropdown */
-
-.submenu{
-    display:none;
-    position:absolute;
-    top:100%;
-    left:0;
-    background:black;
-    list-style:none;
-    min-width:200px;
-}
-
-.submenu li{
-    padding:10px 15px;
-}
-
-.submenu li a{
-    color:white;
-    text-decoration:none;
-}
-
-.submenu li a:hover{
-    color:yellow;
-}
-
-.menu li:hover .submenu{
-    display:block;
-}
-
-/* ================= CONTENT ================= */
-
-main{
-    padding:30px;
-}
-
-iframe{
-    width:100%;
-    height:600px;
-    border:none;
-}
-
-/* ================= FOOTER ================= */
-
-footer{
-    background:#111;
-    color:white;
-    padding:40px;
-}
-
-.footer-container{
-    display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-}
-
-.footer-col{
-    width:30%;
-    min-width:200px;
-}
-
-.footer-col h3{
-    border-bottom:2px solid orange;
-    padding-bottom:5px;
-    margin-bottom:10px;
-}
-
-.footer-col ul{
-    list-style:none;
-}
-
-.footer-col li{
-    margin:8px 0;
-}
-
-.footer-col a{
-    color:#ccc;
-    text-decoration:none;
-}
-
-.footer-col a:hover{
-    color:yellow;
-}
-
-/* Social */
-
-.social-btn{
-    display:block;
-    margin:8px 0;
-    padding:8px;
-    color:white;
-    text-decoration:none;
-}
-
-.fb{background:#3b5998;}
-.tw{background:#1da1f2;}
-.ig{background:#833ab4;}
-.li{background:#0077b5;}
-.yt{background:#ff0000;}
-
-.social-btn:hover{
-    opacity:0.8;
-}
-
-</style>
 </head>
 <body>
 
 <div class="container">
 
+<!-- ================= HEADER ================= -->
 <header>
     <div class="header-title" id="waveText"></div>
 </header>
 
+<!-- ================= MENU ================= -->
 <nav>
 <ul class="menu">
 
@@ -225,24 +58,27 @@ footer{
 </ul>
 </nav>
 
+<!-- ================= CONTENT ================= -->
 <main>
 <iframe name="contentFrame"></iframe>
 </main>
 
+<!-- ================= FOOTER ================= -->
 <footer>
 <div class="footer-container">
 
 <div class="footer-col">
 <h3>Về chúng tôi</h3>
 <ul>
-<li><a href="gioithieu.html" target="contentFrame">Giới thiệu</a></li>
-<li><a href="tacgia.html" target="contentFrame">Tác giả</a></li>
+<li><a class="footer-link" href="gioithieu.html" target="contentFrame">Giới thiệu</a></li>
+<li><a class="footer-link" href="tacgia.html" target="contentFrame">Tác giả</a></li>
 </ul>
 </div>
 
 <div class="footer-col">
 <h3>Liên hệ</h3>
 <p>Email: vannb@gmail.com</p>
+<p>TP. Hồ Chí Minh</p>
 </div>
 
 <div class="footer-col">
@@ -259,33 +95,41 @@ footer{
 
 </div>
 
+<!-- ================= WAVE TEXT SCRIPT ================= -->
 <script>
 const text = "NGUYỄN BÀNH";
 const container = document.getElementById("waveText");
 
 let spans = [];
 
-for(let i=0;i<text.length;i++){
-    let span=document.createElement("span");
-    span.innerText=text[i];
-    span.style.display="inline-block";
+for (let i = 0; i < text.length; i++) {
+    let span = document.createElement("span");
+    span.innerText = text[i];
+    span.style.display = "inline-block";
     container.appendChild(span);
     spans.push(span);
 }
 
-let t=0;
+let time = 0;
 
-function animate(){
-    t+=0.05;
-    spans.forEach((span,index)=>{
-        let x = Math.sin(t + index*0.5) * 5;
-        let y = Math.cos(t + index*0.5) * 8;
-        span.style.transform=`translate(${x}px,${y}px)`;
+function animateWave() {
+    time += 0.03;
+
+    spans.forEach((span, index) => {
+
+        // Sóng ngang thật sự (di chuyển x theo sin)
+        let offsetX = Math.sin(time + index * 0.4) * 15;
+
+        // Sóng dọc
+        let offsetY = Math.cos(time + index * 0.4) * 8;
+
+        span.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
     });
-    requestAnimationFrame(animate);
+
+    requestAnimationFrame(animateWave);
 }
 
-animate();
+animateWave();
 </script>
 
 </body>

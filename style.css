@@ -1,143 +1,68 @@
-* {
-  box-sizing: border-box;
+/* ===== MENU CHÍNH ===== */
+nav {
+    background: #000;
+    position: relative;
+    z-index: 1000;
 }
 
-body {
-  margin: 0;
-  font-family: "Segoe UI", sans-serif;
-  background: #f4f6f8;
-  color: #333;
+.menu {
+    list-style: none;
+    display: flex;
+    margin: 0;
+    padding: 0 60px; /* canh trái toàn bộ menu */
 }
 
-header {
-  background: linear-gradient(135deg, #2c3e50, #4ca1af);
-  color: white;
-  padding: 40px 20px;
-  text-align: center;
+.menu > li {
+    position: relative;
 }
 
-.container {
-  max-width: 1000px;
-  margin: 30px auto;
-  padding: 0 15px;
+.menu > li > a {
+    display: block;
+    padding: 15px 25px;
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    letter-spacing: 1px;
+    transition: 0.3s;
 }
 
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 20px;
+/* Hover mục lớn */
+.menu > li:hover > a {
+    background: #0077b6;
+    color: #fff;
 }
 
-input, select {
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1em;
+/* ===== DROPDOWN ===== */
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #000;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-width: 200px;
+    text-align: left;
 }
 
-.poem-card {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-  transition: transform 0.2s;
+/* Hiện dropdown */
+.menu > li:hover .dropdown {
+    display: block;
 }
 
-.poem-card:hover {
-  transform: translateY(-4px);
+/* Mục con */
+.dropdown li a {
+    display: block;
+    padding: 12px 25px;
+    color: white;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.3s;
 }
 
-.poem-card h2 {
-  margin-top: 0;
-}
-
-.meta {
-  font-size: 0.9em;
-  color: #777;
-  margin-bottom: 10px;
-}
-
-footer {
-  text-align: center;
-  padding: 20px;
-  color: #777;
-}
-/* ===== NỀN BIỂN CHO INDEX ===== */
-body.index {
-  background: linear-gradient(
-    180deg,
-    #0f4c75 0%,
-    #3282b8 40%,
-    #bbe1fa 100%
-  );
-  color: #f5faff;
-}
-
-/* ===== CHỮ LƯỢN SÓNG NHẸ ===== */
-.wave-text span {
-  display: inline-block;
-  animation: wave 3s ease-in-out infinite;
-}
-
-.wave-text span:nth-child(odd) {
-  animation-delay: 0.15s;
-}
-.wave-text span:nth-child(even) {
-  animation-delay: 0.3s;
-}
-
-@keyframes wave {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-6px);
-  }
-}
-
-/* ===== CARD THƠ TRÊN BIỂN ===== */
-.index .poem-card {
-  background: rgba(255, 255, 255, 0.92);
-  color: #333;
-  backdrop-filter: blur(6px);
-}
-/* ===== PHONG CÁCH THƠ ===== */
-
-/* Thơ quê hương */
-.poem-que {
-  background: #faf7f2;
-  border-left: 6px solid #c2a15f;
-  font-family: "Merriweather", serif;
-  font-size: 1.05em;
-}
-
-/* Thơ gia đình */
-.poem-gia-dinh {
-  background: #fff5f5;
-  border: 2px dashed #d98c8c;
-  font-size: 1.1em;
-}
-
-/* Thơ trữ tình */
-.poem-tru-tinh {
-  background: linear-gradient(135deg, #fdeff9, #ec38bc);
-  color: #3b003b;
-  font-style: italic;
-}
-
-/* Thơ trải đời */
-.poem-trai-doi {
-  background: #1e1e1e;
-  color: #e0e0e0;
-  border: 1px solid #444;
-  font-size: 1em;
-}
-
-/* Khung chung cho bài thơ */
-.poem-box {
-  padding: 30px;
-  border-radius: 12px;
-  line-height: 1.8;
+/* Hover mục con */
+.dropdown li a:hover {
+    background: #0077b6;
+    color: white;
 }
