@@ -1,35 +1,75 @@
-<h1 style="text-align:center;margin-bottom:30px;">
+<h1 style="text-align:center;margin:30px 0;font-size:40px;">
 THƯ VIỆN THƠ CỦA BÀNH
 </h1>
 
-<div style="display:flex;justify-content:center;gap:40px;margin-bottom:30px;">
+<!-- FILTER -->
+<div style="
+display:flex;
+justify-content:center;
+gap:80px;
+margin-bottom:40px;
+font-weight:bold;
+">
 
-<select id="filterCategory">
-<option value="">TẤT CẢ THỂ LOẠI</option>
+<div style="text-align:center;">
+<div>THỂ LOẠI</div>
+<select id="filterCategory" style="padding:8px 15px;margin-top:10px;">
+<option value="">TẤT CẢ</option>
 <option value="THƠ TÌNH">THƠ TÌNH</option>
 <option value="QUÊ HƯƠNG">QUÊ HƯƠNG</option>
+<option value="HỌC TRÒ">HỌC TRÒ</option>
+<option value="GIA ĐÌNH">GIA ĐÌNH</option>
+<option value="ĐỜI NGƯỜI">ĐỜI NGƯỜI</option>
 </select>
+</div>
 
-<select id="filterType">
-<option value="">TẤT CẢ THỂ THƠ</option>
+<div style="text-align:center;">
+<div>THỂ THƠ</div>
+<select id="filterType" style="padding:8px 15px;margin-top:10px;">
+<option value="">TẤT CẢ</option>
 <option value="LỤC BÁT">LỤC BÁT</option>
+<option value="SONG THẤT LỤC BÁT">SONG THẤT LỤC BÁT</option>
 <option value="THẤT NGÔN">THẤT NGÔN</option>
+<option value="NGŨ NGÔN">NGŨ NGÔN</option>
+<option value="BÁT NGÔN">BÁT NGÔN</option>
+<option value="TỰ DO">TỰ DO</option>
+<option value="HAIKU">HAIKU</option>
+<option value="BIẾN THỂ">BIẾN THỂ</option>
 </select>
+</div>
+
+<div style="text-align:center;">
+<div>ÂM THANH</div>
+<select id="filterAudio" style="padding:8px 15px;margin-top:10px;">
+<option value="">TẤT CẢ</option>
+<option value="true">CÓ GIỌNG ĐỌC</option>
+<option value="false">KHÔNG GIỌNG ĐỌC</option>
+</select>
+</div>
 
 </div>
 
+<!-- GRID -->
 <div id="poemContainer" style="
+width:90%;
+margin:auto;
 display:grid;
 grid-template-columns:repeat(3,1fr);
-gap:30px;
+gap:40px;
 "></div>
 
 <script src="../poems-data.js"></script>
 
 <script>
-const container = document.getElementById("poemContainer");
 
+const container = document.getElementById("poemContainer");
+const categorySelect = document.getElementById("filterCategory");
+const typeSelect = document.getElementById("filterType");
+const audioSelect = document.getElementById("filterAudio");
+
+/* ===== RENDER ===== */
 function renderPoems(data){
+
 container.innerHTML = "";
 
 data.forEach(poem => {
@@ -37,22 +77,59 @@ data.forEach(poem => {
 const card = document.createElement("div");
 card.style.background="white";
 card.style.padding="10px";
+card.style.textAlign="center";
 card.style.cursor="pointer";
+card.style.borderRadius="6px";
+card.style.transition="0.3s";
+
+card.onmouseover = () => {
+card.style.background="#eaeaea";
+card.style.transform="scale(1.02)";
+};
+
+card.onmouseout = () => {
+card.style.background="white";
+card.style.transform="scale(1)";
+};
 
 card.innerHTML = `
-<img src="../${poem.image}" style="width:100%;height:200px;object-fit:cover;">
+<img src="${poem.image}" style="width:100%;height:200px;object-fit:cover;border-radius:4px;">
 <div style="font-weight:bold;margin-top:10px;">${poem.title}</div>
 <div style="font-size:13px;color:gray;">${poem.date}</div>
+<div style="font-size:14px;margin-top:5px;">${poem.author}</div>
 `;
 
 card.onclick = () => {
-loadPage(poem.file);
+loadPage(poem.file);   // KHÔNG dùng window.location
 };
 
 container.appendChild(card);
 
 });
+
 }
 
 renderPoems(poems);
+
+/* ===== FILTER ===== */
+categorySelect.addEventListener("change", filterPoems);
+typeSelect.addEventListener("change", filterPoems);
+audioSelect.addEventListener("change", filterPoems);
+
+function filterPoems(){
+
+const cat = categorySelect.value;
+const type = typeSelect.value;
+const audio = audioSelect.value;
+
+const filtered = poems.filter(p =>
+(cat === "" || p.category === cat) &&
+(type === "" || p.type === type) &&
+(audio === "" || String(p.audio) === audio)
+);
+
+renderPoems(filtered);
+
+}
+
 </script>
