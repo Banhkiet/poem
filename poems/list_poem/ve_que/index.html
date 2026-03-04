@@ -8,7 +8,92 @@
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-/* giữ nguyên toàn bộ CSS của bạn */
+body{
+    font-family: Arial, sans-serif;
+    background:#f2f2f2;
+    margin:0;
+    padding:40px;
+}
+.container{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+/* ===== HEADER ===== */
+.poem-header{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+.poem-title{
+    font-size:36px;
+    font-weight:bold;
+}
+.audio-icon{
+    font-size:22px;
+    color:#444;
+    cursor:pointer;
+    transition:0.3s;
+    display:none;
+}
+.audio-icon:hover{
+    color:#1e88ff;
+}
+
+/* ===== CUSTOM PLAYER ===== */
+.audio-player{
+    margin-top:15px;
+    display:none;
+    align-items:center;
+    gap:10px;
+    background:#fff;
+    padding:8px 15px;
+    border-radius:30px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* nút play */
+.play-btn{
+    width:35px;
+    height:35px;
+    border-radius:50%;
+    background:#1e88ff;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+}
+
+/* progress bar */
+.progress-container{
+    width:180px;
+    height:6px;
+    background:#ddd;
+    border-radius:10px;
+    cursor:pointer;
+    position:relative;
+}
+.progress{
+    height:100%;
+    width:0%;
+    background:#1e88ff;
+    border-radius:10px;
+}
+.time{
+    font-size:13px;
+    color:#555;
+    min-width:70px;
+}
+
+/* nội dung thơ */
+.poem-content{
+    margin-top:40px;
+    max-width:600px;
+    line-height:1.8;
+    font-size:18px;
+}
 </style>
 </head>
 
@@ -37,7 +122,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
         <source src="audio.mp3" type="audio/mpeg">
     </audio>
 
-    <div class="poem-content">
+    <div id="poem-content">
         Dìa quê kịp bữa cơm chiều<br>
         Canh rau mẹ đã thêm nhiều khổ qua<br>
         Đầu năm xuôi ngược gần xa<br>
