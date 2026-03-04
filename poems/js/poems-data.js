@@ -7,7 +7,6 @@ const poems = [
         author: "Bành",
         category: ["GIA ĐÌNH", "QUÊ HƯƠNG"],
         type: "LỤC BÁT",
-        audio: true,
         content: "",  // Nội dung sẽ được lấy từ HTML
     },
     {
@@ -17,7 +16,6 @@ const poems = [
         author: "Bành",
         category: "QUÊ HƯƠNG",
         type: "TỰ DO",
-        audio: false,
         content: "",  // Nội dung sẽ được lấy từ HTML
     }, 
     {
@@ -27,7 +25,6 @@ const poems = [
         author: "Bành",
         category: ["ĐỜI NGƯỜI", "TÌNH YÊU"],
         type: "LỤC BÁT",
-        audio: true,
         content: "",  // Nội dung sẽ được lấy từ HTML
     }, 
 ];
