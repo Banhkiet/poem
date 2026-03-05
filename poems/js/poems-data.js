@@ -10,29 +10,11 @@ const poems = [
         content: "",  // Nội dung sẽ được lấy từ HTML
     },
     {
-        title: "Quê Hương",
-        name: "ve_que",
+        title: "Nơi ấy trò có thầy",
+        name: "nguyen_van_cu",
         date: "01/08/2023",
         author: "Bành",
-        category: "QUÊ HƯƠNG",
-        type: "TỰ DO",
-        content: "",  // Nội dung sẽ được lấy từ HTML
-    }, 
-    {
-        title: "Đời Người",
-        name: "doi_nguoi",
-        date: "01/08/2023",
-        author: "Bành",
-        category: ["ĐỜI NGƯỜI", "TÌNH YÊU"],
-        type: "LỤC BÁT",
-        content: "",  // Nội dung sẽ được lấy từ HTML
-    }, 
-    {
-        title: "Con Bò",
-        name: "con_bo",
-        date: "01/08/2023",
-        author: "Bành",
-        category: ["ĐỜI NGƯỜI", "TÌNH YÊU"],
+        category: ["QUÊ HƯƠNG","HỌC TRÒ", "ĐỜI NGƯỜI"],
         type: "LỤC BÁT",
         content: "",  // Nội dung sẽ được lấy từ HTML
     }
