@@ -8,27 +8,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const progressContainer = document.getElementById("progressContainer");
     const timeDisplay = document.getElementById("time");
 
-    if(!audio) return; // nếu trang không có audio thì thoát
+    if(!audio) return;
 
-    /* ẨN ICON BAN ĐẦU */
+    let isOpen = false;
+
+    /* ẨN ICON + PLAYER BAN ĐẦU */
     audioIcon.style.display = "none";
-    player.style.display = "none";
+    player.classList.remove("show");
 
-    /* KIỂM TRA FILE AUDIO TỒN TẠI */
-    audio.addEventListener("error", () => {
-        audioIcon.style.display = "none";
-    });
-
+    /* HIỆN ICON KHI LOAD OK */
     audio.addEventListener("loadedmetadata", () => {
         audioIcon.style.display = "inline-block";
     });
 
-    /* TOGGLE PLAYER */
+    /* ===== CLICK ICON LOA ===== */
     audioIcon.addEventListener("click", () => {
-        player.style.display = player.style.display === "flex" ? "none" : "flex";
+
+        if(!isOpen){
+            // MỞ PLAYER + PHÁT
+            player.classList.add("show");
+            audio.play();
+            audioIcon.classList.remove("fa-volume-xmark");
+            audioIcon.classList.add("fa-volume-high");
+            playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            isOpen = true;
+        } 
+        else{
+            // ĐÓNG PLAYER + PAUSE (KHÔNG RESET TIME)
+            audio.pause();
+            player.classList.remove("show");
+            audioIcon.classList.remove("fa-volume-high");
+            audioIcon.classList.add("fa-volume-xmark");
+            playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            isOpen = false;
+        }
     });
 
-    /* PLAY / PAUSE */
+    /* ===== PLAY / PAUSE ===== */
     playBtn.addEventListener("click", () => {
         if(audio.paused){
             audio.play();
@@ -39,7 +55,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    /* PROGRESS */
+    /* ===== UPDATE PROGRESS ===== */
     audio.addEventListener("timeupdate", () => {
         if(!audio.duration) return;
 
@@ -52,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         timeDisplay.textContent = minutes + ":" + seconds;
     });
 
-    /* SEEK */
+    /* ===== SEEK ===== */
     progressContainer.addEventListener("click", (e) => {
         if(!audio.duration) return;
 
