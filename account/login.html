@@ -2,39 +2,51 @@
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
-<title>Đăng nhập</title>
+<title>Thành viên</title>
 
 <style>
 
 body{
-    font-family:Arial;
-    background:#f2f2f2;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+font-family:Arial;
+background:#f2f2f2;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
 }
 
 .box{
-    width:350px;
-    background:white;
-    padding:30px;
-    border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,0.2);
+width:350px;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
 
 input{
-    width:100%;
-    padding:10px;
-    margin:8px 0;
+width:100%;
+padding:10px;
+margin:8px 0;
 }
 
 button{
-    width:100%;
-    padding:10px;
-    background:#3498db;
-    color:white;
-    border:none;
+width:100%;
+padding:10px;
+background:#3498db;
+color:white;
+border:none;
+cursor:pointer;
+}
+
+.link{
+text-align:center;
+margin-top:10px;
+color:blue;
+cursor:pointer;
+}
+
+.hidden{
+display:none;
 }
 
 </style>
@@ -44,12 +56,41 @@ button{
 
 <div class="box">
 
+<!-- REGISTER -->
+
+<div id="registerBox">
+
+<h2>Đăng ký</h2>
+
+<input id="reg_username" placeholder="Tên truy cập">
+<input id="reg_email" placeholder="Email">
+<input id="reg_password" type="password" placeholder="Mật khẩu">
+
+<button id="registerBtn">Đăng ký</button>
+
+<div class="link" id="gotoLogin">
+Bạn đã có tài khoản ? Đăng nhập ngay?
+</div>
+
+</div>
+
+
+<!-- LOGIN -->
+
+<div id="loginBox" class="hidden">
+
 <h2>Đăng nhập</h2>
 
-<input id="username" placeholder="Tên đăng nhập">
-<input id="password" type="password" placeholder="Mật khẩu">
+<input id="login_email" placeholder="Email">
+<input id="login_password" type="password" placeholder="Mật khẩu">
 
 <button id="loginBtn">Đăng nhập</button>
+
+<div class="link" id="gotoRegister">
+Bạn chưa có tài khoản? đăng kí ngay?
+</div>
+
+</div>
 
 </div>
 
@@ -57,58 +98,77 @@ button{
 
 import { auth, db } from "./js/firebase-conf.js";
 
-import {
-signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+/* REGISTER */
 
-import {
-collection,
-getDocs
-} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+document.getElementById("registerBtn").onclick = async ()=>{
 
-const username = document.getElementById("username");
-const password = document.getElementById("password");
-
-document.getElementById("loginBtn").onclick = async ()=>{
+const username = document.getElementById("reg_username").value;
+const email = document.getElementById("reg_email").value;
+const password = document.getElementById("reg_password").value;
 
 try{
 
-const querySnapshot = await getDocs(collection(db,"users"));
+const userCredential =
+await auth.createUserWithEmailAndPassword(email,password);
 
-let emailFound = null;
+const user = userCredential.user;
 
-querySnapshot.forEach(doc=>{
+await db.collection("users").doc(user.uid).set({
 
-if(doc.data().username === username.value){
-
-emailFound = doc.data().email;
-
-}
+username: username,
+email: email
 
 });
 
-if(!emailFound){
-
-alert("Không tìm thấy tài khoản");
-return;
-
-}
-
-await signInWithEmailAndPassword(
-auth,
-emailFound,
-password.value
-);
-
-alert("Bạn đã đăng nhập xong");
-
-window.location.href="index.html";
+alert("Bạn đã đăng kí xong");
 
 }catch(err){
 
 alert(err.message);
 
 }
+
+};
+
+
+/* LOGIN */
+
+document.getElementById("loginBtn").onclick = async ()=>{
+
+const email = document.getElementById("login_email").value;
+const password = document.getElementById("login_password").value;
+
+try{
+
+await auth.signInWithEmailAndPassword(email,password);
+
+alert("Bạn đã đăng nhập xong");
+
+}catch(err){
+
+alert(err.message);
+
+}
+
+};
+
+
+/* SWITCH PAGE */
+
+const registerBox = document.getElementById("registerBox");
+const loginBox = document.getElementById("loginBox");
+
+document.getElementById("gotoLogin").onclick = ()=>{
+
+registerBox.classList.add("hidden");
+loginBox.classList.remove("hidden");
+
+};
+
+document.getElementById("gotoRegister").onclick = ()=>{
+
+loginBox.classList.add("hidden");
+registerBox.classList.remove("hidden");
 
 };
 
