@@ -314,7 +314,7 @@ function highlight(text, keywordRaw){
 
     /* ================= AUTO LOAD CONTENT ================= */
     // Hàm tải nội dung bài thơ từ file HTML
-    async function loadPoemContents() {
+async function loadPoemContents() {
         for (let poem of poems) {
             try {
                 // Fetch file HTML của bài thơ
@@ -325,7 +325,7 @@ function highlight(text, keywordRaw){
                 const parser = new DOMParser(); // Tạo đối tượng parser
                 const doc = parser.parseFromString(html, "text/html"); // Phân tích cú pháp HTML
 
-                // Truy xuất nội dung bài thơ từ phần tử có id="poem-content" (hoặc bạn có thể sử dụng một selector khác tùy theo cấu trúc HTML)
+                // Truy xuất nội dung bài thơ từ phần tử có id="poem-content" 
                 const contentDiv = doc.querySelector("#poem-content");
 
                 if (contentDiv) {
@@ -340,7 +340,6 @@ function highlight(text, keywordRaw){
             }
         }
     }
-
     /* ================= FILTER LOGIC ================= */
     function applyFilters() {
         const keywordRaw = searchInput.value.trim();
