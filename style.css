@@ -62,8 +62,19 @@ gap:45px;
 
 .hello{
 font-size:14px;
-color:#222;
 white-space:nowrap;
+
+}
+
+.hello .label{
+font-weight:bold;
+margin-right:4px;
+}
+
+#username{
+font-weight:700;
+color:#c62828;
+letter-spacing:0.3px;
 }
 
 /* ================= MENU ================= */
