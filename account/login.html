@@ -5,6 +5,7 @@
 <title>Đăng nhập</title>
 
 <style>
+
 body{
     font-family:Arial;
     background:#f2f2f2;
@@ -15,9 +16,9 @@ body{
 }
 
 .box{
+    width:350px;
     background:white;
     padding:30px;
-    width:350px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
@@ -36,58 +37,78 @@ button{
     border:none;
 }
 
-a{
-    display:block;
-    margin-top:10px;
-    text-align:center;
-}
 </style>
-
 </head>
+
 <body>
 
 <div class="box">
 
 <h2>Đăng nhập</h2>
 
-<input id="email" type="email" placeholder="Email">
+<input id="username" placeholder="Tên đăng nhập">
 <input id="password" type="password" placeholder="Mật khẩu">
 
 <button id="loginBtn">Đăng nhập</button>
-
-<a href="register.html">Chưa có tài khoản? Đăng ký</a>
 
 </div>
 
 <script type="module">
 
-import { auth } from "./js/firebase-conf.js";
+import { auth, db } from "./js/firebase-conf.js";
 
-import { signInWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import {
+signInWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
-const email = document.getElementById("email");
+import {
+collection,
+getDocs
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const username = document.getElementById("username");
 const password = document.getElementById("password");
 
-document.getElementById("loginBtn").onclick = async () => {
+document.getElementById("loginBtn").onclick = async ()=>{
 
-    try{
+try{
 
-        await signInWithEmailAndPassword(
-            auth,
-            email.value,
-            password.value
-        );
+const querySnapshot = await getDocs(collection(db,"users"));
 
-        alert("Đăng nhập thành công");
+let emailFound = null;
 
-        window.location.href="index.html";
+querySnapshot.forEach(doc=>{
 
-    }catch(err){
+if(doc.data().username === username.value){
 
-        alert(err.message);
+emailFound = doc.data().email;
 
-    }
+}
+
+});
+
+if(!emailFound){
+
+alert("Không tìm thấy tài khoản");
+return;
+
+}
+
+await signInWithEmailAndPassword(
+auth,
+emailFound,
+password.value
+);
+
+alert("Bạn đã đăng nhập xong");
+
+window.location.href="index.html";
+
+}catch(err){
+
+alert(err.message);
+
+}
 
 };
 

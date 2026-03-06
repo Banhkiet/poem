@@ -5,6 +5,7 @@
 <title>Đăng ký</title>
 
 <style>
+
 body{
     font-family:Arial;
     background:#f2f2f2;
@@ -15,9 +16,9 @@ body{
 }
 
 .box{
+    width:350px;
     background:white;
     padding:30px;
-    width:350px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,0.2);
 }
@@ -36,58 +37,68 @@ button{
     border:none;
 }
 
-a{
-    display:block;
-    margin-top:10px;
-    text-align:center;
-}
 </style>
-
 </head>
+
 <body>
 
 <div class="box">
 
 <h2>Đăng ký tài khoản</h2>
 
-<input id="email" type="email" placeholder="Email">
+<input id="username" placeholder="Tên đăng nhập">
+<input id="email" type="email" placeholder="Mail">
 <input id="password" type="password" placeholder="Mật khẩu">
 
 <button id="registerBtn">Đăng ký</button>
-
-<a href="login.html">Đã có tài khoản? Đăng nhập</a>
 
 </div>
 
 <script type="module">
 
-import { auth } from "./js/firebase-conf.js";
+import { auth, db } from "./js/firebase-conf.js";
 
-import { createUserWithEmailAndPassword } 
-from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import {
+createUserWithEmailAndPassword
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
 
+import {
+doc,
+setDoc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const username = document.getElementById("username");
 const email = document.getElementById("email");
 const password = document.getElementById("password");
 
-document.getElementById("registerBtn").onclick = async () => {
+document.getElementById("registerBtn").onclick = async ()=>{
 
-    try{
+try{
 
-        await createUserWithEmailAndPassword(
-            auth,
-            email.value,
-            password.value
-        );
+const userCredential = await createUserWithEmailAndPassword(
+auth,
+email.value,
+password.value
+);
 
-        alert("Tạo tài khoản thành công");
+const user = userCredential.user;
 
-        window.location.href="login.html";
+/* lưu dữ liệu vào firestore */
 
-    }catch(err){
+await setDoc(doc(db,"users",user.uid),{
 
-        alert(err.message);
+username: username.value,
+email: email.value
 
-    }
+});
+
+alert("Bạn đã đăng kí xong");
+
+}catch(err){
+
+alert(err.message);
+
+}
 
 };
 
