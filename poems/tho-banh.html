@@ -315,31 +315,34 @@ function highlight(text, keywordRaw){
     /* ================= AUTO LOAD CONTENT ================= */
     // Hàm tải nội dung bài thơ từ file HTML
     async function loadPoemContents() {
-        for (let poem of poems) {
-            try {
-                // Fetch file HTML của bài thơ
-                const response = await fetch(poem.file);
-                if (!response.ok) throw new Error(`Không thể tải bài thơ từ ${poem.file}`);
 
-                const html = await response.text(); // Lấy nội dung HTML dưới dạng text
-                const parser = new DOMParser(); // Tạo đối tượng parser
-                const doc = parser.parseFromString(html, "text/html"); // Phân tích cú pháp HTML
+    for (let poem of poems) {
 
-                // Truy xuất nội dung bài thơ từ phần tử có id="poem-content" (hoặc bạn có thể sử dụng một selector khác tùy theo cấu trúc HTML)
-                const contentDiv = doc.querySelector("#poem-content");
+        try {
 
-                if (contentDiv) {
-                    poem.content = contentDiv.innerText || contentDiv.textContent; // Lưu nội dung bài thơ
-                } else {
-                    poem.content = ""; // Nếu không tìm thấy phần tử nội dung, để trống
-                }
+            const response = await fetch(poem.file);
+            if (!response.ok) throw new Error(`Không thể tải bài thơ từ ${poem.file}`);
 
-            } catch (error) {
-                console.error(`Lỗi khi tải nội dung bài thơ ${poem.title}: `, error);
-                poem.content = ""; // Nếu gặp lỗi, nội dung bài thơ để trống
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+
+            // đổi từ # sang .
+		const contentDivs = doc.querySelectorAll(".poem-content");
+            if (contentDiv) {
+                poem.content = contentDiv.innerText || contentDiv.textContent;
+            } else {
+                poem.content = "";
             }
+
+        } catch (error) {
+            console.error(`Lỗi khi tải nội dung bài thơ ${poem.title}: `, error);
+            poem.content = "";
         }
+
     }
+
+}
 
     /* ================= FILTER LOGIC ================= */
     function applyFilters() {
