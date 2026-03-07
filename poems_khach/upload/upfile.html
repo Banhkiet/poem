@@ -2,119 +2,128 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Upload to Cloudinary & Firestore</title>
+<title>Upload MP3</title>
+
+<style>
+body{
+font-family:Arial;
+padding:40px;
+background:#f5f5f5;
+}
+
+.upload-box{
+background:white;
+padding:25px;
+width:350px;
+border-radius:10px;
+box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+button{
+margin-top:10px;
+padding:10px 18px;
+cursor:pointer;
+}
+
+#status{
+margin-top:10px;
+font-weight:bold;
+}
+</style>
+
+</head>
+<body>
+
+<div class="upload-box">
+
+<h3>Upload MP3</h3>
+
+<input type="file" id="fileInput" accept="audio/*">
+
+<br>
+
+<button id="uploadBtn">Upload</button>
+
+<p id="status"></p>
+
+</div>
 
 <script type="module">
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
-
-/* FIREBASE CONFIG */
-
 const firebaseConfig = {
-
 apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
 authDomain: "banhkietgithunbpoem.firebaseapp.com",
 projectId: "banhkietgithunbpoem",
 storageBucket: "banhkietgithunbpoem.firebasestorage.app",
 messagingSenderId: "429631951698",
 appId: "1:429631951698:web:8c5f6854de3ad22113a08b"
-
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+const btn = document.getElementById("uploadBtn");
 
-
-/* UPLOAD FUNCTION */
-
-window.uploadFile = async function(){
+btn.onclick = async () => {
 
 const file = document.getElementById("fileInput").files[0];
 const status = document.getElementById("status");
 
 if(!file){
-
-status.innerText="Please choose a file!";
+status.innerText = "Please choose file";
 return;
-
 }
 
-status.innerText="Uploading...";
-
-
-/* CLOUDINARY API */
-
-const url = "https://api.cloudinary.com/v1_1/dp6rc7ghq/auto/upload";
+status.innerText = "Uploading...";
 
 const formData = new FormData();
-
-formData.append("file",file);
+formData.append("file", file);
 formData.append("upload_preset","web_upload");
 
+/* CLOUDINARY URL */
+const url = "https://api.cloudinary.com/v1_1/dp6rc7ghq/auto/upload";
 
 try{
 
-const response = await fetch(url,{
-
+const res = await fetch(url,{
 method:"POST",
 body:formData
-
 });
 
-const data = await response.json();
+const data = await res.json();
 
-console.log("Cloudinary response:",data);
-
-if(!data.secure_url){
-
-status.innerText="Upload failed!";
-return;
-
-}
+console.log(data);
 
 const fileUrl = data.secure_url;
 
-
 /* SAVE TO FIRESTORE */
 
-await addDoc(collection(db,"images"),{
+await addDoc(collection(db,"songs"),{
 
 url:fileUrl,
+name:file.name,
 createdAt:new Date()
 
 });
 
+status.innerText="Upload success";
 
-status.innerText="Upload Successful!";
-console.log("Cloud URL:",fileUrl);
+console.log("File URL:",fileUrl);
 
+}catch(err){
 
-}catch(error){
+console.error(err);
 
-status.innerText="Upload failed!";
-console.error("Error uploading file:",error);
+status.innerText="Upload failed";
 
 }
 
 };
 
 </script>
-
-</head>
-
-
-<body>
-
-<h1>Upload Image / MP3 to Cloudinary</h1>
-
-<input type="file" id="fileInput">
-
-<button onclick="uploadFile()">Upload</button>
-
-<p id="status"></p>
 
 </body>
 </html>
