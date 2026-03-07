@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Quản lý tài khoản</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f4f4f4;
+padding:40px;
+}
+
+h2{
+margin-bottom:20px;
+}
+
+table{
+width:700px;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:10px;
+border:1px solid #ddd;
+text-align:center;
+}
+
+th{
+background:#2e7d32;
+color:white;
+}
+
+button{
+padding:6px 10px;
+border:none;
+background:#d32f2f;
+color:white;
+cursor:pointer;
+border-radius:4px;
+}
+
+button:hover{
+background:#b71c1c;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Quản lý thành viên</h2>
+
+<table>
+<thead>
+<tr>
+<th>UID</th>
+<th>Username</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="userTable"></tbody>
+
+</table>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+import {
+getFirestore,
+collection,
+getDocs,
+deleteDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+import {
+getAuth
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+
+const firebaseConfig = {
+
+apiKey: "API_KEY",
+authDomain: "PROJECT_ID.firebaseapp.com",
+projectId: "PROJECT_ID"
+
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+
+
+async function loadUsers(){
+
+const snapshot = await getDocs(collection(db,"users"));
+
+const table = document.getElementById("userTable");
+table.innerHTML = "";
+
+snapshot.forEach((docSnap)=>{
+
+const data = docSnap.data();
+
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
+<td>${docSnap.id}</td>
+<td>${data.username}</td>
+<td>${data.role}</td>
+<td>
+<button onclick="deleteUser('${docSnap.id}')">Xóa</button>
+</td>
+`;
+
+table.appendChild(tr);
+
+});
+
+}
+
+window.deleteUser = async function(uid){
+
+if(!confirm("Xóa user này?")) return;
+
+await deleteDoc(doc(db,"users",uid));
+
+alert("Đã xóa");
+
+loadUsers();
+
+}
+
+loadUsers();
+
+</script>
+
+</body>
+</html>
