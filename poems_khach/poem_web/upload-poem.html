@@ -5,7 +5,9 @@
 <meta charset="UTF-8">
 <title>Đăng bài thơ</title>
 
-<script src="../js/selpoem.js"></script>
+<script src="../../poems/js/selpoem.js"></script>
+
+<link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Lora&family=Playfair+Display&family=Roboto&family=Be+Vietnam+Pro&display=swap" rel="stylesheet">
 
 <style>
 
@@ -29,7 +31,7 @@ text-align:center;
 margin-bottom:30px;
 }
 
-input[type="text"]{
+input[type="text"],select{
 width:100%;
 padding:10px;
 margin:10px 0;
@@ -96,6 +98,31 @@ opacity:0.5;
 pointer-events:none;
 }
 
+/* ===== layout font mới ===== */
+
+.font-row{
+display:flex;
+gap:10px;
+align-items:center;
+width:100%;
+}
+
+.font-select{
+width:180px;
+}
+
+.font-other{
+flex:1;
+display:none;
+}
+
+.font-note{
+font-size:13px;
+color:#555;
+margin-top:-5px;
+margin-bottom:10px;
+}
+
 </style>
 
 </head>
@@ -106,21 +133,76 @@ pointer-events:none;
 
 <h2>Đăng bài thơ</h2>
 
-<div class="row">
+<!-- ================= TIÊU ĐỀ ================= -->
 
-<div class="left">
-<input type="text" id="title" placeholder="Tên bài thơ">
+<label><b>Tên bài thơ</b></label>
+<input type="text" id="title" placeholder="Nhập tên bài thơ">
+
+<div class="font-note">
+    <p></p>
+Chọn kiểu chữ (font) cho <b>tên bài thơ</b>. Nếu chọn <b>Khác</b> bạn có thể tự nhập font mong muốn.
 </div>
 
-<div class="right">
-<input type="text" id="fontTitle" placeholder="Font tên bài thơ">
-</div>
+<div class="font-row">
+
+<select id="fontTitleSelect" class="font-select">
+
+<option value="Times New Roman">Times New Roman</option>
+<option value="Georgia">Georgia</option>
+<option value="Merriweather">Merriweather</option>
+<option value="Playfair Display">Playfair Display</option>
+<option value="Lora">Lora</option>
+<option value="Roboto">Roboto</option>
+<option value="Be Vietnam Pro">Be Vietnam Pro</option>
+<option value="other">Khác</option>
+
+</select>
+
+<input
+type="text"
+id="fontTitleOther"
+class="font-other"
+placeholder="Nhập tên font tiêu đề (ví dụ: Arial, Tahoma...)"
+/>
 
 </div>
 
+<!-- ================= NỘI DUNG ================= -->
+
+<br>
+
+<label><b>Nội dung bài thơ</b></label>
+<p></p>
 <textarea id="content" placeholder="Nhập nội dung bài thơ"></textarea>
 
-<input type="text" id="fontContent" placeholder="Font nội dung bài thơ">
+<div class="font-note">
+    <p></p>
+Chọn kiểu chữ (font) cho <b>nội dung bài thơ</b>. Nếu chọn <b>Khác</b> bạn có thể tự nhập font mong muốn.
+</div>
+
+<div class="font-row">
+
+<select id="fontContentSelect" class="font-select">
+
+<option value="Times New Roman">Times New Roman</option>
+<option value="Georgia">Georgia</option>
+<option value="Merriweather">Merriweather</option>
+<option value="Playfair Display">Playfair Display</option>
+<option value="Lora">Lora</option>
+<option value="Roboto">Roboto</option>
+<option value="Be Vietnam Pro">Be Vietnam Pro</option>
+<option value="other">Khác</option>
+
+</select>
+
+<input
+type="text"
+id="fontContentOther"
+class="font-other"
+placeholder="Nhập tên font nội dung"
+/>
+
+</div>
 
 <h3>Thể thơ</h3>
 <div id="theThoBox" class="checkbox-group"></div>
@@ -146,7 +228,6 @@ pointer-events:none;
 <br><br>
 
 <button id="submitBtn">Gửi bài thơ</button>
-<button onclick="previewPoem()">Xem trước bài thơ</button>
 
 <p id="msg"></p>
 
@@ -157,6 +238,8 @@ pointer-events:none;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
 import { getFirestore, collection, addDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+/* firebase */
 
 const firebaseConfig={
 apiKey:"AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
@@ -171,7 +254,29 @@ const app=initializeApp(firebaseConfig);
 const db=getFirestore(app);
 const auth=getAuth(app);
 
-/* ================= CLOUDINARY UPLOAD ================= */
+/* lấy element */
+
+const fontTitleSelect=document.getElementById("fontTitleSelect");
+const fontTitleOther=document.getElementById("fontTitleOther");
+
+const fontContentSelect=document.getElementById("fontContentSelect");
+const fontContentOther=document.getElementById("fontContentOther");
+
+const backgroundFile=document.getElementById("backgroundFile");
+const imageFile=document.getElementById("imageFile");
+const audioFile=document.getElementById("audioFile");
+
+const bgPreview=document.getElementById("bgPreview");
+const imgPreview=document.getElementById("imgPreview");
+const audioPreview=document.getElementById("audioPreview");
+
+const submitBtn=document.getElementById("submitBtn");
+const msg=document.getElementById("msg");
+
+const theThoBox=document.getElementById("theThoBox");
+const theLoaiBox=document.getElementById("theLoaiBox");
+
+/* upload cloudinary */
 
 async function uploadFile(file){
 
@@ -182,37 +287,131 @@ const url="https://api.cloudinary.com/v1_1/dp6rc7ghq/upload";
 const formData=new FormData();
 formData.append("file",file);
 formData.append("upload_preset","uploadfilepoem");
-formData.append("resource_type","auto");
 
-const res=await fetch(url,{
-method:"POST",
-body:formData
-});
-
+const res=await fetch(url,{method:"POST",body:formData});
 const data=await res.json();
 
 return data.secure_url;
 
 }
 
-/* ================= CHECKBOX ================= */
+/* font combobox */
 
-function createCheckbox(container,data){
+fontTitleSelect.onchange=function(){
+
+fontTitleOther.style.display=
+this.value==="other" ? "block":"none";
+
+}
+
+fontContentSelect.onchange=function(){
+
+fontContentOther.style.display=
+this.value==="other" ? "block":"none";
+
+}
+
+/* tạo option */
+
+function createOptions(container,data,type){
 
 data.forEach(item=>{
 
 const row=document.createElement("div");
 row.className="checkbox-row";
 
-const check=document.createElement("input");
-check.type="checkbox";
-check.value=item;
+const input=document.createElement("input");
+
+if(type==="radio"){
+input.type="radio";
+input.name=container.id;
+}else{
+input.type="checkbox";
+}
+
+input.value=item;
 
 const label=document.createElement("span");
 label.innerText=item;
 
-row.appendChild(check);
+row.appendChild(input);
 row.appendChild(label);
+
+let otherInput=null;
+
+if(item.toLowerCase()==="khác"){
+
+otherInput=document.createElement("input");
+otherInput.type="text";
+otherInput.placeholder="Nhập...";
+otherInput.className="other-input";
+
+row.appendChild(otherInput);
+
+}
+
+if(type==="radio"){
+
+input.addEventListener("change",()=>{
+
+container.querySelectorAll(".other-input")
+.forEach(el=>el.style.display="none");
+
+if(item.toLowerCase()==="khác" && input.checked){
+
+otherInput.style.display="block";
+
+}
+
+});
+
+}
+
+if(type==="checkbox"){
+
+input.addEventListener("change",()=>{
+
+const otherCheck=container.querySelector('input[value="Khác"]');
+const otherBox=container.querySelector(".other-input");
+
+if(item.toLowerCase()==="khác"){
+
+if(input.checked){
+
+container.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+if(cb!==input){
+cb.checked=false;
+cb.disabled=true;
+}
+});
+
+if(otherBox) otherBox.style.display="block";
+
+}else{
+
+container.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+cb.disabled=false;
+});
+
+if(otherBox) otherBox.style.display="none";
+
+}
+
+}else{
+
+if(input.checked && otherCheck){
+
+otherCheck.checked=false;
+
+if(otherBox) otherBox.style.display="none";
+
+}
+
+}
+
+});
+
+}
 
 container.appendChild(row);
 
@@ -220,16 +419,43 @@ container.appendChild(row);
 
 }
 
-createCheckbox(document.getElementById("theThoBox"),config.theTho);
-createCheckbox(document.getElementById("theLoaiBox"),config.theLoai);
+createOptions(theThoBox,config.theTho,"radio");
+createOptions(theLoaiBox,config.theLoai,"checkbox");
 
-/* ================= SUBMIT ================= */
+/* preview */
+
+backgroundFile.onchange=()=>{
+
+if(!backgroundFile.files[0]) return;
+
+bgPreview.src=URL.createObjectURL(backgroundFile.files[0]);
+bgPreview.style.display="block";
+
+}
+
+imageFile.onchange=()=>{
+
+if(!imageFile.files[0]) return;
+
+imgPreview.src=URL.createObjectURL(imageFile.files[0]);
+imgPreview.style.display="block";
+
+}
+
+audioFile.onchange=()=>{
+
+if(!audioFile.files[0]) return;
+
+audioPreview.src=URL.createObjectURL(audioFile.files[0]);
+audioPreview.style.display="block";
+
+}
+
+/* submit */
 
 submitBtn.onclick=async function(){
 
-this.classList.add("disabled");
-
-msg.innerText="Đang upload file...";
+msg.innerText="Đang upload...";
 
 try{
 
@@ -240,64 +466,86 @@ msg.innerText="Bạn chưa đăng nhập";
 return;
 }
 
-/* lấy email + role */
-
 const userDoc=await getDoc(doc(db,"users",user.uid));
 const userData=userDoc.data();
-
-const email=userData.email;
-const role=userData.role;
-
-/* upload file */
 
 const back_img=await uploadFile(backgroundFile.files[0]);
 const image=await uploadFile(imageFile.files[0]);
 const audio=await uploadFile(audioFile.files[0]);
 
-/* lấy dữ liệu input */
+const titleValue=document.getElementById("title").value;
+const contentValue=document.getElementById("content").value;
 
-const title=document.getElementById("title").value;
-const content=document.getElementById("content").value;
-const fontTitle=document.getElementById("fontTitle").value;
-const fontContent=document.getElementById("fontContent").value;
+/* font */
+
+let fontTitle=
+fontTitleSelect.value==="other"
+? fontTitleOther.value
+: fontTitleSelect.value;
+
+let fontContent=
+fontContentSelect.value==="other"
+? fontContentOther.value
+: fontContentSelect.value;
 
 /* thể loại */
 
-let theLoai="";
-document.querySelectorAll("#theLoaiBox input:checked")
-.forEach(el=> theLoai=el.value);
+let theLoai=[];
+const otherLoai=document.querySelector("#theLoaiBox .other-input");
+
+if(otherLoai && otherLoai.style.display==="block"){
+
+theLoai=[otherLoai.value];
+
+}else{
+
+document.querySelectorAll("#theLoaiBox input[type=checkbox]:checked")
+.forEach(el=>theLoai.push(el.value));
+
+}
 
 /* thể thơ */
 
 let theTho="";
-document.querySelectorAll("#theThoBox input:checked")
-.forEach(el=> theTho=el.value);
+const tho=document.querySelector("#theThoBox input[type=radio]:checked");
 
-/* lưu firebase */
+if(tho){
+
+if(tho.value.toLowerCase()==="khác"){
+
+theTho=document.querySelector("#theThoBox .other-input").value;
+
+}else{
+
+theTho=tho.value;
+
+}
+
+}
 
 await addDoc(collection(db,"uploads"),{
 
-email:email,
-role:role,
+email:userData.email,
+role:userData.role,
 
-title:title,
-content:content,
+title:titleValue,
+content:contentValue,
 
-fontTitle:fontTitle,
-fontContent:fontContent,
+fontTitle,
+fontContent,
 
-theLoai:theLoai,
-theTho:theTho,
+theLoai,
+theTho,
 
-back_img:back_img,
-image:image,
-audio:audio,
+back_img,
+image,
+audio,
 
 created:Date.now()
 
 });
 
-msg.innerText="Đã gửi bài thơ. Chờ admin duyệt.";
+msg.innerText="Đã gửi bài thơ";
 
 }catch(e){
 
@@ -309,6 +557,6 @@ msg.innerText="Upload lỗi";
 };
 
 </script>
-
+<script src="/main_js/iframe.js"></script>
 </body>
 </html>

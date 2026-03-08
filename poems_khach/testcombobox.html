@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thư Viện Thơ Sưu Tầm</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, #f8f9fa, #eef2f7);
+  overflow: hidden;
+}
+
+h1 {
+  text-align: center;
+  margin: 40px 0 20px;
+  font-size: 38px;
+  letter-spacing: 2px;
+}
+
+.filter-wrapper {
+  width: 90%;
+  margin: auto;
+  background: white;
+  padding: 30px 30px 50px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  margin-bottom: 60px;
+}
+
+.search-box {
+  text-align: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.search-box input {
+  width: 60%;
+  max-width: 420px;
+  padding: 13px 22px;
+  border-radius: 40px;
+  border: 2px solid #6c63ff;
+  font-size: 15px;
+  outline: none;
+  transition: 0.3s;
+}
+
+.search-box input:focus {
+  box-shadow: 0 0 15px rgba(108, 99, 255, 0.35);
+}
+
+.suggestions {
+  width: 60%;
+  max-width: 420px;
+  margin: 10px auto 0;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  display: none;
+}
+
+.suggestion-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background: #f3f3ff;
+}
+
+.highlight {
+  background: yellow;
+  font-weight: bold;
+}
+
+.suggestion-img {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.suggestion-text {
+  flex: 1;
+}
+
+.filter-bar {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.filter-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.filter-box label {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+select {
+  padding: 12px 20px;
+  border-radius: 50px;
+  border: 2px solid #6c63ff;
+  font-size: 14px;
+  cursor: pointer;
+  min-width: 190px;
+}
+
+.poem-container {
+  width: 90%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 35px;
+  min-height: 300px;
+}
+
+.poem-card {
+  background: white;
+  padding: 12px;
+  text-align: center;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeUp 0.5s forwards;
+  transition: 0.3s;
+}
+
+@keyframes fadeUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.poem-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.15);
+}
+
+.poem-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.poem-title {
+  margin-top: 10px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.poem-date {
+  font-size: 14px;
+  color: #444;
+  margin-top: 4px;
+}
+
+.poem-user {
+  font-size: 14px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.no-poem {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 26px;
+  color: #888;
+}
+
+@media(max-width: 1024px) {
+  .poem-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media(max-width: 600px) {
+  .poem-container {
+    grid-template-columns: 1fr;
+  }
+
+  .search-box input, .suggestions {
+    width: 90%;
+  }
+}
+</style>
+</head>
+<body>
+
+<h1>THƯ VIỆN THƠ</h1>
+
+<div class="filter-wrapper">
+  <div class="search-box">
+    <input type="text" id="searchInput" placeholder="Tìm theo nội dung bài thơ...">
+    <div id="suggestions" class="suggestions"></div>
+  </div>
+
+  <div class="filter-bar">
+    <div class="filter-box">
+      <label>THỂ THƠ</label>
+      <select id="theTho"><option value="">Tất cả</option></select>
+    </div>
+    <div class="filter-box">
+      <label>THỂ LOẠI</label>
+      <select id="theLoai"><option value="">Tất cả</option></select>
+    </div>
+    <div class="filter-box">
+      <label>ÂM THANH</label>
+      <select id="amThanh">
+        <option value="">Tất cả</option>
+        <option value="true">Có</option>
+        <option value="false">Không</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<div id="poemContainer" class="poem-container"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+    authDomain: "banhkietgithunbpoem.firebaseapp.com",
+    projectId: "banhkietgithunbpoem"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  let poems = [];
+  let poemTypes = [];
+  let poemCategories = [];
+
+  /* UTILS */
+  function removeVietnameseTones(str) {
+    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+  }
+
+  function highlight(text, keyword) {
+    if (!keyword) return text;
+    const normText = removeVietnameseTones(text);
+    const normKey = removeVietnameseTones(keyword);
+    const regex = new RegExp(normKey, 'gi');
+    return text.replace(regex, match => `<span class="highlight">${match}</span>`);
+  }
+
+  function formatDate(dateString) {
+    if (!dateString) return "";
+    const d = new Date(dateString);
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+  }
+
+  /* LOAD POEMS */
+  async function loadData() {
+    const snapshot = await getDocs(collection(db, "uploads"));
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      poems.push({
+        id: doc.id,
+        title: data.title || "",
+        content: data.content || "",
+        image: data.image || "",
+        audio: data.audio || "",
+        username: data.username || "Ẩn danh",
+        date: data.date || data.created || "",
+        type: data.theTho || "", // Thể thơ
+        category: data.theLoai || [] // Thể loại
+      });
+
+      // Thêm thể thơ và thể loại vào danh sách
+      if (data.theTho && !poemTypes.includes(data.theTho)) {
+        poemTypes.push(data.theTho);
+      }
+      if (data.theLoai) {
+        data.theLoai.forEach(cat => {
+          if (!poemCategories.includes(cat)) {
+            poemCategories.push(cat);
+          }
+        });
+      }
+    });
+
+    // Cập nhật các dropdown
+    populateFilters();
+    renderPoems(poems); // Gọi hàm renderPoems để hiển thị dữ liệu
+  }
+
+  // Hàm điền dữ liệu vào các combobox (dropdown)
+  function populateFilters() {
+    const typeSelect = document.getElementById("theTho");
+    const categorySelect = document.getElementById("theLoai");
+
+    // Điền thể thơ vào dropdown "Thể Thơ"
+    poemTypes.forEach(type => {
+      const option = document.createElement("option");
+      option.value = type;
+      option.textContent = type;
+      typeSelect.appendChild(option);
+    });
+
+    // Điền thể loại vào dropdown "Thể Loại"
+    poemCategories.forEach(category => {
+      const option = document.createElement("option");
+      option.value = category;
+      option.textContent = category;
+      categorySelect.appendChild(option);
+    });
+  }
+
+  /* RENDER POEMS */
+  const container = document.getElementById("poemContainer");
+
+  function renderPoems(data) {
+    container.innerHTML = "";
+    if (data.length === 0) {
+      container.innerHTML = "<div class='no-poem'>Không có bài thơ phù hợp</div>";
+      return;
+    }
+    data.forEach((p, index) => {
+      const card = document.createElement("div");
+      card.className = "poem-card";
+      card.style.animationDelay = (index * 0.05) + "s";
+      card.innerHTML = `
+        <img src="${p.image || 'img/default.jpg'}">
+        <div class="poem-title">${p.title}${p.audio ? " 🔊" : ""}</div>
+        <div class="poem-date">${formatDate(p.date)}</div>
+        <div class="poem-user">${p.username}</div>
+      `;
+      card.onclick = () => { window.location.href = "poem-khachid.html?id=" + p.id; };
+      container.appendChild(card);
+    });
+  }
+
+  /* FILTER LOGIC */
+  const searchInput = document.getElementById("searchInput");
+  const filterTypeSelect = document.getElementById("theTho");
+  const filterCategorySelect = document.getElementById("theLoai");
+  const filterAudioSelect = document.getElementById("amThanh");
+  const suggestionBox = document.getElementById("suggestions");
+
+  function applyFilters() {
+    const keywordRaw = searchInput.value.trim();
+    const keyword = removeVietnameseTones(keywordRaw);
+    const type = filterTypeSelect.value;
+    const category = filterCategorySelect.value;
+    const audio = filterAudioSelect.value;
+
+    const filtered = poems.filter(p => {
+      const content = removeVietnameseTones(p.content || "");
+      const matchKeyword = keyword === "" || content.includes(keyword);
+      const matchType = type === "" || p.type === type;
+      const matchCategory = category === "" || (Array.isArray(p.category) ? p.category.includes(category) : p.category === category);
+      const hasAudio = !!p.audio && p.audio.trim() !== "";
+      const matchAudio = audio === "" || hasAudio === (audio === "true");
+      return matchKeyword && matchType && matchCategory && matchAudio;
+    });
+
+    renderPoems(filtered);
+    renderSuggestions(filtered); // Gọi hàm renderSuggestions khi dữ liệu thay đổi
+  }
+
+  // Gợi ý tìm kiếm bài thơ theo tên và nội dung
+  function renderSuggestions(data) {
+    const keyword = searchInput.value.trim();
+    if (keyword.length < 2) {
+      suggestionBox.style.display = "none";
+      return;
+    }
+
+    suggestionBox.innerHTML = "";
+    data.slice(0, 5).forEach(p => {
+      const titleHighlighted = highlight(p.title, keyword);
+      const contentHighlighted = highlight(p.content, keyword);
+
+      const div = document.createElement("div");
+      div.className = "suggestion-item";
+      div.innerHTML = `
+        <img src="${p.image || 'img/default.jpg'}" class="suggestion-img">
+        <div class="suggestion-text">... ${titleHighlighted} ... ${contentHighlighted} ... ${p.audio ? " 🔊" : ""}</div>
+      `;
+      div.onclick = () => { window.location.href = "poem-khachid.html?id=" + p.id; };
+      suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.style.display = "block";
+  }
+
+  searchInput.addEventListener("input", applyFilters);
+  filterTypeSelect.addEventListener("change", applyFilters);
+  filterCategorySelect.addEventListener("change", applyFilters);
+  filterAudioSelect.addEventListener("change", applyFilters);
+
+  /* AUTO RESIZE IFRAME */
+  function sendHeight() { window.parent.postMessage(document.body.scrollHeight, "*"); }
+  window.addEventListener("load", () => setTimeout(sendHeight, 100));
+  window.addEventListener("resize", sendHeight);
+  const observer = new MutationObserver(() => setTimeout(sendHeight, 50));
+  observer.observe(document.body, { childList: true, subtree: true });
+
+  // Gọi hàm để tải dữ liệu từ Firestore khi trang được tải
+  window.addEventListener("load", loadData);
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+ <!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Đăng nhập / Đăng ký Thơ</title>
+<style>
+body{
+font-family:"Times New Roman",serif;
+background:linear-gradient(135deg,#f5f2eb,#e9e3d6);
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+.container{
+background:white;
+padding:35px;
+width:360px;
+border-radius:12px;
+box-shadow:0 10px 30px rgba(0,0,0,0.15);
+}
+h2{text-align:center;margin-bottom:15px;}
+.slogan{text-align:center;font-style:italic;opacity:0.65;margin-bottom:20px;line-height:1.4;}
+input{width:100%;padding:10px;margin:8px 0;border-radius:6px;border:1px solid #ccc;font-size:14px;}
+button{width:100%;padding:11px;border:none;border-radius:6px;background:#2e7d32;color:white;font-size:15px;cursor:pointer;margin-top:10px;}
+button:hover{background:#1b5e20;}
+.link{text-align:center;margin-top:12px;}
+.link a{color:#2c5fb8;cursor:pointer;}
+#registerForm{display:none;}
+.message{text-align:center;margin-top:10px;font-size:14px;display:none;}
+.success{color:green;}
+.error{color:red;}
+.role-line{display:flex;align-items:center;gap:15px;margin:10px 0 15px 0;flex-wrap:wrap;}
+.role-title{font-style:italic;opacity:0.8;}
+.role-item{display:flex;align-items:center;gap:6px;font-style:italic;opacity:0.8;font-size:14px;}
+.role-item input{width:auto;cursor:pointer;}
+.loading{text-align:center;margin-top:10px;display:none;}
+.spinner{width:26px;height:26px;border:3px solid #ddd;border-top:3px solid #2e7d32;border-radius:50%;animation:spin 0.8s linear infinite;margin:auto;}
+@keyframes spin{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<div class="slogan">
+"Thơ là tiếng lòng lặng lẽ,<br>chỉ người tri kỷ mới nghe."
+</div>
+
+<!-- LOGIN -->
+<div id="loginForm">
+<h2>Đăng nhập</h2>
+<input id="loginEmail" placeholder="Email">
+<input id="loginPassword" type="password" placeholder="Mật khẩu">
+<button onclick="login()">Đăng nhập</button>
+
+<div class="loading" id="loginLoading"><div class="spinner"></div></div>
+<div class="message" id="loginMsg"></div>
+
+<div class="link">
+Bạn chưa có tài khoản? <a onclick="showRegister()">Đăng ký ngay</a>
+</div>
+</div>
+
+<!-- REGISTER -->
+<div id="registerForm">
+<h2>Đăng ký</h2>
+<input id="fullname" placeholder="Họ và tên đầy đủ">
+
+<div class="role-line">
+<div class="role-title">Bạn là?</div>
+<label class="role-item"><input type="checkbox" id="teacher"><span>Giáo viên từng dạy Bành</span></label>
+<label class="role-item"><input type="checkbox" id="friend"><span>Bạn bè</span></label>
+</div>
+
+<input id="username" placeholder="Tên đăng nhập">
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Mật khẩu">
+
+<button onclick="register()">Đăng ký</button>
+
+<div class="loading" id="registerLoading"><div class="spinner"></div></div>
+<div class="message" id="registerMsg"></div>
+
+<div class="link">
+Bạn đã có tài khoản? <a onclick="showLogin()">Đăng nhập</a>
+</div>
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey:"AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+authDomain:"banhkietgithunbpoem.firebaseapp.com",
+projectId:"banhkietgithunbpoem",
+storageBucket:"banhkietgithunbpoem.appspot.com",
+messagingSenderId:"429631951698",
+appId:"1:429631951698:web:8c5f6854de3ad22113a08b"
+};
+
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const db=getFirestore(app);
+
+/* ELEMENTS */
+const teacher=document.getElementById("teacher");
+const friend=document.getElementById("friend");
+
+/* ROLE SELECT */
+teacher.addEventListener("change",()=>{ if(teacher.checked){ friend.checked=false; } });
+friend.addEventListener("change",()=>{ if(friend.checked){ teacher.checked=false; } });
+
+/* SWITCH FORM */
+window.showRegister=()=>{ document.getElementById("loginForm").style.display="none"; document.getElementById("registerForm").style.display="block"; clearFields();}
+window.showLogin=()=>{ document.getElementById("loginForm").style.display="block"; document.getElementById("registerForm").style.display="none"; clearFields();}
+
+/* CLEAR INPUT */
+function clearFields(){
+document.querySelectorAll("input").forEach(i=>{ if(i.type==="checkbox"){ i.checked=false;}else{i.value="";}});
+document.querySelectorAll(".message").forEach(m=>{ m.style.display="none"; });
+}
+
+/* REGISTER */
+window.register=async function(){
+const fullname=document.getElementById("fullname").value;
+const username=document.getElementById("username").value;
+const email=document.getElementById("email").value;
+const password=document.getElementById("password").value;
+const role=teacher.checked?"teacher":friend.checked?"friend":"";
+const msg=document.getElementById("registerMsg");
+const loading=document.getElementById("registerLoading");
+loading.style.display="block"; msg.style.display="none";
+
+try{
+const userCredential=await createUserWithEmailAndPassword(auth,email,password);
+await setDoc(doc(db,"users",userCredential.user.uid),{
+fullname, username, email, role, admin:false, created:Date.now()
+});
+loading.style.display="none";
+msg.className="message success"; msg.innerText="Đăng ký thành công"; msg.style.display="block";
+setTimeout(showLogin,1500);
+}catch(err){
+loading.style.display="none"; msg.className="message error";
+if(err.code==="auth/email-already-in-use"){ msg.innerText="Email đã được đăng ký."; }
+else if(err.code==="auth/weak-password"){ msg.innerText="Mật khẩu phải từ 6 ký tự trở lên."; }
+else{ msg.innerText="Hệ thống gặp lỗi: "+err.code; }
+msg.style.display="block";
+}
+}
+
+/* LOGIN */
+window.login=async function(){
+const email=document.getElementById("loginEmail").value;
+const password=document.getElementById("loginPassword").value;
+const msg=document.getElementById("loginMsg");
+const loading=document.getElementById("loginLoading");
+loading.style.display="block"; msg.style.display="none";
+
+try{
+await signInWithEmailAndPassword(auth,email,password);
+loading.style.display="none";
+msg.className="message success"; msg.innerText="Đăng nhập thành công"; msg.style.display="block";
+setTimeout(()=>{ window.top.location.href="./index.html"; },800);
+}catch(err){
+loading.style.display="none"; msg.className="message error";
+if(err.code==="auth/user-not-found"){ msg.innerText="Không tìm thấy thông tin người dùng."; }
+else if(err.code==="auth/wrong-password"){ msg.innerText="Mật khẩu không đúng."; }
+else if(err.code==="auth/invalid-email"){ msg.innerText="Email không hợp lệ."; }
+else{ msg.innerText="Hệ thống gặp lỗi: "+err.code; }
+msg.style.display="block";
+}
+}
+
+</script>
+
+<!-- IFRAME JS -->
+<script src="./main_js/iframe.js"></script>
+
+</body>
+</html>

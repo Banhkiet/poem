@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Danh sách thể loại và thể thơ</title>
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f8f9fa;
+      padding: 20px;
+    }
+
+    select {
+      padding: 10px 20px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #6c63ff;
+      font-size: 14px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .filter-box {
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Danh Sách Thể Thơ và Thể Loại</h2>
+
+    <div class="filter-box">
+      <label for="theTho">Chọn Thể Thơ</label>
+      <select id="theTho">
+        <option value="">Tất cả</option>
+      </select>
+    </div>
+
+    <div class="filter-box">
+      <label for="theLoai">Chọn Thể Loại</label>
+      <select id="theLoai">
+        <option value="">Tất cả</option>
+      </select>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+      authDomain: "banhkietgithunbpoem.firebaseapp.com",
+      projectId: "banhkietgithunbpoem"
+    };
+    
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Mảng lưu các thể thơ và thể loại
+    let poemTypes = [];
+    let poemCategories = [];
+
+    // Hàm tải dữ liệu từ Firestore
+    async function loadData() {
+      const snapshot = await getDocs(collection(db, "uploads"));
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+
+        // Kiểm tra thể thơ và thêm vào mảng nếu chưa có
+        if (data.theTho && !poemTypes.includes(data.theTho)) {
+          poemTypes.push(data.theTho);
+        }
+
+        // Kiểm tra thể loại và thêm vào mảng nếu chưa có
+        if (data.theLoai && Array.isArray(data.theLoai)) {
+          data.theLoai.forEach(loai => {
+            if (!poemCategories.includes(loai)) {
+              poemCategories.push(loai);
+            }
+          });
+        }
+      });
+
+      // Cập nhật combobox thể thơ và thể loại
+      populateFilters();
+    }
+
+    // Hàm điền dữ liệu vào các combobox
+    function populateFilters() {
+      const typeSelect = document.getElementById("theTho");
+      const categorySelect = document.getElementById("theLoai");
+
+      // Điền thể thơ vào combobox
+      poemTypes.forEach(type => {
+        const option = document.createElement("option");
+        option.value = type;
+        option.textContent = type;
+        typeSelect.appendChild(option);
+      });
+
+      // Điền thể loại vào combobox
+      poemCategories.forEach(category => {
+        const option = document.createElement("option");
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+      });
+    }
+
+    // Gọi hàm để tải dữ liệu khi trang được tải
+    loadData();
+  </script>
+</body>
+</html>

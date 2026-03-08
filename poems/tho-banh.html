@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Thư Viện Thơ Của Bành</title>
 
-<script src="js/config.js"></script>
 <script src="js/selpoem.js"></script>
 <script src="js/poems-data.js"></script>
 <style>
@@ -237,8 +236,8 @@ select{
 
 <div class="poem-container" id="poemContainer"></div>
 <pre> 
-				  	Giữa đời người ta như một kẻ khờ
-					Học cách cười trong thế giới toàn đau khổ.
+				  	        Giữa đời người ta như một kẻ khờ
+					        Học cách cười trong thế giới toàn đau khổ.
 
 
 </pre>
@@ -482,24 +481,14 @@ async function loadPoemContents() {
     });
 /* ================= AUTO RESIZE IFRAME ================= */
 
-function sendHeight() {
-    const height = document.body.scrollHeight;
-    window.parent.postMessage(height, "*");
-}
-
-window.addEventListener("load",()=>setTimeout(sendHeight,100));
-window.addEventListener("resize",sendHeight);
-
-const observer=new MutationObserver(()=>{
-    setTimeout(sendHeight,50);
-});
-observer.observe(document.body,{childList:true,subtree:true});
 /* ================= INIT LOAD ================= */
 
 await loadPoemContents();   // tải nội dung bài thơ
 renderPoems(poems);        // hiển thị tất cả bài thơ ban đầu
 });
 </script>
+
+<script src="/main_js/iframe.js"></script>
 
 </body>
 </html>

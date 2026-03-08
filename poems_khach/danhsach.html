@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thư Viện Thơ Sưu Tầm</title>
+
+<style>
+body{
+    font-family:'Segoe UI',Arial,sans-serif;
+    margin:0;
+    padding:0;
+    background:linear-gradient(to right,#f8f9fa,#eef2f7);
+    overflow-x:hidden;
+}
+
+h1{
+    text-align:center;
+    margin:40px 0 20px;
+    font-size:38px;
+    letter-spacing:2px;
+    overflow: hidden;
+
+}
+
+.filter-wrapper{
+    width:90%;
+    margin:auto;
+    background:white;
+    padding:30px 30px 50px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+    margin-bottom:60px;
+}
+
+.search-box{
+    text-align:center;
+    margin-bottom:20px;
+    position:relative;
+}
+
+.search-box input{
+    width:60%;
+    max-width:420px;
+    padding:13px 22px;
+    border-radius:40px;
+    border:2px solid #6c63ff;
+    font-size:15px;
+    outline:none;
+    transition:0.3s;
+}
+
+.search-box input:focus{
+    box-shadow:0 0 15px rgba(108,99,255,0.35);
+}
+
+.suggestions{
+    width:60%;
+    max-width:420px;
+    margin:10px auto 0;
+    background:white;
+    border-radius:15px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.15);
+    overflow:hidden;
+    display:none;
+}
+
+.suggestion-item{
+    padding:12px 16px;
+    cursor:pointer;
+    display:flex;
+    gap:10px;
+    border-bottom:1px solid #eee;
+    font-size:14px;
+}
+
+.suggestion-item:last-child{
+    border-bottom:none;
+}
+
+.suggestion-item:hover{
+    background:#f3f3ff;
+}
+
+.highlight{
+    background:yellow;
+    font-weight:bold;
+}
+
+.suggestion-img{
+    width:40px;
+    height:40px;
+    object-fit:cover;
+    border-radius:6px;
+}
+
+.suggestion-text{
+    flex:1;
+}
+
+.filter-bar{
+    display:flex;
+    justify-content:center;
+    gap:60px;
+    flex-wrap:wrap;
+}
+
+.filter-box{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+}
+
+.filter-box label{
+    font-weight:600;
+    margin-bottom:8px;
+    font-size:14px;
+}
+
+select{
+    padding:12px 20px;
+    border-radius:50px;
+    border:2px solid #6c63ff;
+    font-size:14px;
+    cursor:pointer;
+    min-width:190px;
+}
+
+.poem-container{
+    width:90%;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:35px;
+    min-height:300px;
+}
+
+.poem-card{
+    background:white;
+    padding:12px;
+    text-align:center;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.06);
+    cursor:pointer;
+    opacity:0;
+    transform:translateY(20px);
+    animation:fadeUp 0.5s forwards;
+    transition:0.3s;
+}
+
+@keyframes fadeUp{
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+.poem-card:hover{
+transform:translateY(-6px);
+box-shadow:0 14px 35px rgba(0,0,0,0.15);
+}
+
+.poem-card img{
+width:100%;
+height:200px;
+object-fit:cover;
+border-radius:14px;
+}
+
+.poem-title{
+margin-top:10px;
+font-size:18px;
+font-weight:700;
+}
+
+.poem-date{
+font-size:14px;
+color:#444;
+margin-top:4px;
+}
+
+.poem-user{
+font-size:14px;
+color:#777;
+margin-top:2px;
+}
+
+.no-poem{
+grid-column:1/-1;
+text-align:center;
+font-size:26px;
+color:#888;
+}
+
+@media(max-width:1024px){
+.poem-container{
+grid-template-columns:repeat(2,1fr);
+}
+}
+
+@media(max-width:600px){
+.poem-container{
+grid-template-columns:1fr;
+}
+
+.search-box input,.suggestions{
+width:90%;
+}
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>THƯ VIỆN THƠ</h1>
+
+<div class="filter-wrapper">
+
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Tìm theo nội dung bài thơ...">
+<div id="suggestions" class="suggestions"></div>
+</div>
+
+<div class="filter-bar">
+<div class="filter-box">
+<label>THỂ THƠ</label>
+<select id="theTho"><option value="">Tất cả</option></select>
+</div>
+<div class="filter-box">
+<label>THỂ LOẠI</label>
+<select id="theLoai"><option value="">Tất cả</option></select>
+</div>
+<div class="filter-box">
+<label>ÂM THANH</label>
+<select id="amThanh">
+<option value="">Tất cả</option>
+<option value="true">Có</option>
+<option value="false">Không</option>
+</select>
+</div>
+</div>
+</div>
+
+<div id="poemContainer" class="poem-container"></div>
+<pre> 
+				  	        Giữa đời người ta như một kẻ khờ
+					        Học cách cười trong thế giới toàn đau khổ.
+
+
+</pre>
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+authDomain:"banhkietgithunbpoem.firebaseapp.com",
+projectId:"banhkietgithunbpoem"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+let poems = [];
+let poemTypes = new Set();
+let poemCategories = new Set();
+
+const container = document.getElementById("poemContainer");
+const searchInput = document.getElementById("searchInput");
+const suggestionBox = document.getElementById("suggestions");
+const filterCategory = document.getElementById("theLoai");
+const filterType = document.getElementById("theTho");
+const filterAudio = document.getElementById("amThanh");
+
+// ===== HELPER =====
+function removeVietnameseTones(str){
+return str.normalize("NFD")
+.replace(/[\u0300-\u036f]/g,"")
+.replace(/đ/g,"d")
+.replace(/Đ/g,"D")
+.toLowerCase();
+}
+
+function highlight(text, keyword){
+if(!keyword) return text;
+const words = keyword.trim().split(/\s+/).map(w=>w.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"));
+const regex = new RegExp("("+words.join("|")+")","gi");
+return text.replace(regex,'<span class="highlight">$1</span>');
+}
+
+function formatDate(dateString){
+if(!dateString) return "";
+const d = new Date(dateString);
+return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+// ===== LOAD DATA FROM FIREBASE =====
+async function loadData(){
+    const snapshot = await getDocs(collection(db,"uploads"));
+    poems = [];
+
+    snapshot.forEach(doc=>{
+        const data = doc.data();
+        poems.push({
+            id: doc.id,
+            title: data.title || "",
+            content: data.content || "",
+            image: data.image || "",
+            audio: data.audio || "",
+            username: data.username || "Ẩn danh",
+            date: data.date || data.created || "",
+            type: data.theTho || "",
+            category: Array.isArray(data.theLoai)? data.theLoai : [data.theLoai]
+        });
+
+        if(data.theTho) poemTypes.add(data.theTho);
+        if(data.theLoai){
+            if(Array.isArray(data.theLoai)) data.theLoai.forEach(c=>poemCategories.add(c));
+            else poemCategories.add(data.theLoai);
+        }
+    });
+
+    populateFilters();
+    renderPoems(poems);
+}
+
+// ===== POPULATE COMBOBOX =====
+function populateFilters(){
+    // Thể thơ
+    filterType.innerHTML = '<option value="">Tất cả</option>';
+    poemTypes.forEach(t=>{
+        const opt = document.createElement("option");
+        opt.value = t; opt.textContent = t;
+        filterType.appendChild(opt);
+    });
+
+    // Thể loại
+    filterCategory.innerHTML = '<option value="">Tất cả</option>';
+    poemCategories.forEach(c=>{
+        const opt = document.createElement("option");
+        opt.value = c; opt.textContent = c;
+        filterCategory.appendChild(opt);
+    });
+}
+
+// ===== RENDER POEMS =====
+function renderPoems(data){
+container.innerHTML = "";
+if(data.length===0){
+container.innerHTML="<div class='no-poem'>Không có bài thơ phù hợp</div>";
+return;
+}
+
+const keyword = searchInput.value.trim();
+data.forEach((p,index)=>{
+    const card = document.createElement("div");
+    card.className = "poem-card";
+    card.style.animationDelay = (index*0.05)+"s";
+    card.innerHTML=`
+    <img src="${p.image||'img/default.jpg'}">
+    <div class="poem-title">${highlight(p.title,keyword)}${p.audio?" 🔊":""}</div>
+    <div class="poem-date">${formatDate(p.date)}</div>
+    <div class="poem-user">${p.username}</div>
+    `;
+    card.onclick=()=>{ window.location.href="poem-khachid.html?id="+p.id; };
+    container.appendChild(card);
+});
+}
+
+// ===== FILTER LOGIC =====
+function applyFilters(){
+    const keywordRaw = searchInput.value.trim();
+    const keyword = removeVietnameseTones(keywordRaw);
+    const category = filterCategory.value;
+    const type = filterType.value;
+    const audio = filterAudio.value;
+
+    const filtered = poems.filter(p=>{
+        const tTitle = removeVietnameseTones(p.title);
+        const tContent = removeVietnameseTones(p.content);
+
+        const matchKeyword = keyword==="" || tTitle.includes(keyword) || tContent.includes(keyword);
+        const matchType = type==="" || p.type===type;
+        const matchCategory = category==="" || p.category.includes(category);
+        const matchAudio = audio==="" || String(p.audio)===audio;
+        return matchKeyword && matchType && matchCategory && matchAudio;
+    });
+
+    renderPoems(filtered);
+    renderSuggestions(filtered);
+}
+
+// ===== RENDER SUGGESTIONS =====
+function renderSuggestions(data){
+    const keywordRaw = searchInput.value.trim();
+    if(keywordRaw.length<1){ suggestionBox.style.display="none"; return; }
+    suggestionBox.innerHTML="";
+    const keyword = removeVietnameseTones(keywordRaw);
+
+    let titleMatches = [], contentMatches = [];
+    data.forEach(p=>{
+        const tTitle = removeVietnameseTones(p.title);
+        const tContent = removeVietnameseTones(p.content);
+        if(tTitle.includes(keyword)) titleMatches.push(p);
+        else if(tContent.includes(keyword)) contentMatches.push(p);
+    });
+
+    titleMatches.slice(0,3).forEach(p=>{
+        const div = document.createElement("div");
+        div.className="suggestion-item";
+        div.innerHTML=`<div class="suggestion-text"><div class="suggestion-title">${highlight(p.title,keywordRaw)}</div></div>`;
+        div.onclick=()=>{window.location.href="poem-khachid.html?id="+p.id};
+        suggestionBox.appendChild(div);
+    });
+
+    contentMatches.slice(0,5).forEach(p=>{
+        const div = document.createElement("div");
+        div.className="suggestion-item";
+        div.innerHTML=`
+        <img src="${p.image||'img/default.jpg'}" class="suggestion-img">
+        <div class="suggestion-text">
+        <div class="suggestion-title">${highlight(p.title,keywordRaw)}</div>
+        <div>${highlight(p.content.slice(0,80),keywordRaw)}</div>
+        </div>
+        `;
+        div.onclick=()=>{window.location.href="poem-khachid.html?id="+p.id};
+        suggestionBox.appendChild(div);
+    });
+
+    suggestionBox.style.display= (titleMatches.length+contentMatches.length)? "block":"none";
+}
+
+// ===== EVENTS =====
+searchInput.addEventListener("input",applyFilters);
+filterType.addEventListener("change",applyFilters);
+filterCategory.addEventListener("change",applyFilters);
+filterAudio.addEventListener("change",applyFilters);
+
+document.addEventListener("click",e=>{
+    if(!e.target.closest(".search-box")) suggestionBox.style.display="none";
+});
+
+// ===== INIT =====
+window.addEventListener("load",loadData);
+
+</script>
+<script src="/main_js/iframe.js"></script>
+</body>
+</html>

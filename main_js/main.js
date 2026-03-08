@@ -52,15 +52,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
-
-/* ================= LOGIN WINDOW ================= */
-
-function openLogin(){
-frames["contentFrame"].location.href = "./account/auth.html";
-}
-
-
 /* ================= IFRAME AUTO HEIGHT ================= */
 
 window.addEventListener("message", (e) => {
