@@ -76,7 +76,6 @@ NGUYỄN BÀNH
 </div>
 
 
-
 <div class="nav-right">
 
 <!-- DARK MODE -->
@@ -88,8 +87,9 @@ NGUYỄN BÀNH
 <!-- LOGIN -->
 
 <div class="login-icon">
-  <a href="/account/login_register.html" target="contentFrame">👤</a>  
-
+<a href="account/login_register.html" target="contentFrame" title="Đăng nhập">
+👤
+</a>
 </div>
 
 </div>
@@ -101,7 +101,11 @@ NGUYỄN BÀNH
 
 <main>
 
-<iframe name="contentFrame"></iframe>
+<iframe
+id="contentFrame"
+name="contentFrame"
+style="width:100%;border:none;min-height:600px;">
+</iframe>
 
 </main>
 
@@ -151,7 +155,15 @@ NGUYỄN BÀNH
 
 </div>
 
-<script src="/main_js/main.js"></script>
-<script type="module" src="/main_js/auth.js"></script>
+
+<!-- AUTO RESIZE IFRAME -->
+<!-- MAIN JS -->
+
+<script src="main_js/main.js"></script>
+
+<!-- FIREBASE AUTH -->
+
+<script type="module" src="main_js/auth.js"></script>
+
 </body>
 </html>
