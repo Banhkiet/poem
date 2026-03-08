@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+
+<meta charset="UTF-8">
+<title>Đăng bài thơ</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Merriweather&family=Lora&family=Playfair+Display&family=Roboto&family=Be+Vietnam+Pro&display=swap" rel="stylesheet">
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f6fa;
+padding:40px;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+h2{
+text-align:center;
+margin-bottom:30px;
+}
+
+input[type="text"]{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+
+textarea{
+width:100%;
+height:220px;
+padding:10px;
+resize:vertical;
+}
+
+.preview-img{
+max-width:200px;
+margin-top:10px;
+display:none;
+border-radius:6px;
+}
+
+audio{
+margin-top:10px;
+display:none;
+}
+
+button{
+padding:12px 20px;
+background:#2e7d32;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:5px;
+margin-top:20px;
+}
+
+#msg{
+margin-top:15px;
+font-weight:bold;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Đăng bài thơ</h2>
+
+<label><b>Tên bài thơ</b></label>
+<input type="text" id="title">
+
+<label><b>Nội dung bài thơ</b></label>
+<textarea id="content"></textarea>
+
+<label><b>Thể thơ</b></label>
+<input type="text" id="theTho">
+
+<label><b>Thể loại</b></label>
+<input type="text" id="theLoai">
+
+<h3>Âm thanh (mp3)</h3>
+<input type="file" id="audioFile" accept=".mp3">
+<br>
+<audio id="audioPreview" controls></audio>
+
+<h3>Background</h3>
+<input type="file" id="backgroundFile" accept=".jpg,.jpeg">
+<br>
+<img id="bgPreview" class="preview-img">
+
+<h3>Ảnh đại diện</h3>
+<input type="file" id="imageFile" accept=".jpg,.jpeg">
+<br>
+<img id="imgPreview" class="preview-img">
+
+<button id="submitBtn">Gửi bài thơ</button>
+
+<p id="msg"></p>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+authDomain:"banhkietgithunbpoem.firebaseapp.com",
+projectId:"banhkietgithunbpoem",
+storageBucket:"banhkietgithunbpoem.firebasestorage.app",
+messagingSenderId:"429631951698",
+appId:"1:429631951698:web:8c5f6854de3ad22113a08b"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const auth=getAuth(app);
+
+const submitBtn=document.getElementById("submitBtn");
+const msg=document.getElementById("msg");
+
+const title=document.getElementById("title");
+const content=document.getElementById("content");
+const theTho=document.getElementById("theTho");
+const theLoai=document.getElementById("theLoai");
+
+const backgroundFile=document.getElementById("backgroundFile");
+const imageFile=document.getElementById("imageFile");
+const audioFile=document.getElementById("audioFile");
+
+const bgPreview=document.getElementById("bgPreview");
+const imgPreview=document.getElementById("imgPreview");
+const audioPreview=document.getElementById("audioPreview");
+
+/* preview */
+
+backgroundFile.onchange=()=>{
+if(!backgroundFile.files[0]) return;
+bgPreview.src=URL.createObjectURL(backgroundFile.files[0]);
+bgPreview.style.display="block";
+}
+
+imageFile.onchange=()=>{
+if(!imageFile.files[0]) return;
+imgPreview.src=URL.createObjectURL(imageFile.files[0]);
+imgPreview.style.display="block";
+}
+
+audioFile.onchange=()=>{
+if(!audioFile.files[0]) return;
+audioPreview.src=URL.createObjectURL(audioFile.files[0]);
+audioPreview.style.display="block";
+}
+
+/* upload cloudinary */
+
+async function uploadFile(file){
+
+if(!file) return "";
+
+const url="https://api.cloudinary.com/v1_1/dp6rc7ghq/upload";
+
+const formData=new FormData();
+formData.append("file",file);
+formData.append("upload_preset","uploadfilepoem");
+
+const res=await fetch(url,{method:"POST",body:formData});
+const data=await res.json();
+
+return data.secure_url;
+
+}
+
+/* submit */
+
+submitBtn.onclick=async()=>{
+
+msg.innerText="Đang upload...";
+
+try{
+
+const user=auth.currentUser;
+
+if(!user){
+msg.innerText="Bạn chưa đăng nhập";
+return;
+}
+
+const back_img=await uploadFile(backgroundFile.files[0]);
+const image=await uploadFile(imageFile.files[0]);
+const audio=await uploadFile(audioFile.files[0]);
+
+await addDoc(collection(db,"temp"),{
+
+email:user.email,
+
+title:title.value,
+content:content.value,
+
+theTho:theTho.value,
+theLoai:theLoai.value,
+
+back_img,
+image,
+audio,
+
+status:"pending",
+
+created:Date.now()
+
+});
+
+msg.innerText="Đã gửi bài thơ chờ admin duyệt";
+
+/* reset form */
+
+title.value="";
+content.value="";
+theTho.value="";
+theLoai.value="";
+
+bgPreview.style.display="none";
+imgPreview.style.display="none";
+audioPreview.style.display="none";
+
+}catch(e){
+
+console.error(e);
+msg.innerText="Upload lỗi rồi";
+
+}
+
+};
+
+</script>
+
+</body>
+</html>

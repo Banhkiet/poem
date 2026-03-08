@@ -523,14 +523,14 @@ theTho=tho.value;
 
 }
 
-await addDoc(collection(db,"uploads"),{
+await addDoc(collection(db,"temp"),{
 
 email:userData.email,
 role:userData.role,
 
 title:titleValue,
 content:contentValue,
-
+username:userData.username, 
 fontTitle,
 fontContent,
 
@@ -545,12 +545,12 @@ created:Date.now()
 
 });
 
-msg.innerText="Đã gửi bài thơ";
+msg.innerText="Đã gửi bài thơ chờ admin duyệt";
 
 }catch(e){
 
 console.error(e);
-msg.innerText="Upload lỗi";
+msg.innerText="Upload lỗi rồi!";
 
 }
 

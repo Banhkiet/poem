@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+
+<meta charset="UTF-8">
+<title>Firebase Test Collection</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f2f4f8;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+margin:0;
+}
+
+.box{
+background:white;
+padding:40px;
+border-radius:10px;
+box-shadow:0 10px 25px rgba(0,0,0,0.1);
+text-align:center;
+width:400px;
+}
+
+button{
+padding:12px 20px;
+font-size:16px;
+border:none;
+border-radius:6px;
+cursor:pointer;
+background:#1976d2;
+color:white;
+}
+
+button:hover{
+background:#125ea7;
+}
+
+.log{
+margin-top:20px;
+background:#eee;
+padding:15px;
+border-radius:6px;
+height:150px;
+overflow:auto;
+font-size:14px;
+text-align:left;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h2>Test tạo Collection Firebase</h2>
+
+<button id="createBtn">Tạo testA và testB</button>
+
+<div class="log" id="log"></div>
+
+</div>
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+import { 
+getFirestore,
+collection,
+addDoc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+
+const firebaseConfig = {
+apiKey:"AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+authDomain:"banhkietgithunbpoem.firebaseapp.com",
+projectId:"banhkietgithunbpoem",
+storageBucket:"banhkietgithunbpoem.firebasestorage.app",
+messagingSenderId:"429631951698",
+appId:"1:429631951698:web:8c5f6854de3ad22113a08b"
+};
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const log = document.getElementById("log");
+
+function writeLog(text){
+log.innerHTML += text + "<br>";
+log.scrollTop = log.scrollHeight;
+}
+
+
+document.getElementById("createBtn").onclick = async () => {
+
+try{
+
+writeLog("Đang tạo collection testA...");
+
+await addDoc(collection(db,"testA"),{
+name:"Document test A",
+time:Date.now(),
+status:"ok"
+});
+
+writeLog("✔ Đã tạo testA");
+
+
+writeLog("Đang tạo collection testB...");
+
+await addDoc(collection(db,"testB"),{
+name:"Document test B",
+time:Date.now(),
+status:"ok"
+});
+
+writeLog("✔ Đã tạo testB");
+
+writeLog("<b>Hoàn tất</b>");
+
+}catch(err){
+
+console.error(err);
+writeLog("❌ Lỗi: " + err.message);
+
+}
+
+};
+
+</script>
+
+</body>
+</html>

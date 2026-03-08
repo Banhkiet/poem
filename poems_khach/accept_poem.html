@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+
+<meta charset="UTF-8">
+<title>Admin duyệt thơ</title>
+
+<style>
+
+/* ===== BODY ===== */
+
+body{
+font-family:Segoe UI,Arial;
+background:linear-gradient(135deg,#eef2f9,#e3e8f3);
+margin:0;
+padding:40px;
+}
+
+/* ===== CONTAINER ===== */
+
+.container{
+max-width:1100px;
+margin:auto;
+}
+
+h2{
+text-align:center;
+margin-bottom:40px;
+color:#2c3e50;
+font-size:32px;
+}
+
+/* ===== CARD ===== */
+
+.card{
+background:white;
+border-radius:16px;
+overflow:hidden;
+box-shadow:0 15px 40px rgba(0,0,0,0.08);
+margin-bottom:35px;
+display:flex;
+flex-direction:column;
+transition:0.25s;
+animation:fadeUp .4s ease;
+}
+
+.card:hover{
+transform:translateY(-4px);
+box-shadow:0 20px 45px rgba(0,0,0,0.12);
+}
+
+@keyframes fadeUp{
+from{
+opacity:0;
+transform:translateY(20px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+/* ===== BACKGROUND ===== */
+
+.bg{
+height:220px;
+background-size:cover;
+background-position:center;
+}
+
+/* ===== BODY ===== */
+
+.card-body{
+padding:28px;
+}
+
+/* ===== TITLE ===== */
+
+.title{
+font-size:28px;
+font-weight:700;
+margin-bottom:10px;
+color:#1f2d3d;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+/* ===== CLOVER BADGE ===== */
+
+.clover{
+background:#2ecc71;
+color:white;
+font-size:16px;
+padding:4px 8px;
+border-radius:20px;
+display:flex;
+align-items:center;
+gap:4px;
+}
+
+/* ===== META ===== */
+
+.meta{
+font-size:14px;
+color:#7f8c8d;
+margin-bottom:18px;
+}
+
+/* ===== CONTENT ===== */
+
+.content{
+white-space:pre-wrap;
+line-height:1.8;
+margin-bottom:22px;
+color:#34495e;
+font-size:16px;
+}
+
+/* ===== IMAGE ===== */
+
+.poem-image{
+max-width:220px;
+border-radius:10px;
+margin-bottom:18px;
+box-shadow:0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* ===== AUDIO ===== */
+
+audio{
+margin-bottom:20px;
+width:100%;
+}
+
+/* ===== BUTTONS ===== */
+
+.buttons{
+margin-top:10px;
+display:flex;
+gap:12px;
+}
+
+/* ===== BUTTON STYLE ===== */
+
+button{
+padding:11px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-size:14px;
+font-weight:600;
+transition:0.25s;
+}
+
+/* APPROVE */
+
+.approve{
+background:#27ae60;
+color:white;
+}
+
+.approve:hover{
+background:#1e874b;
+transform:scale(1.05);
+}
+
+/* DELETE */
+
+.delete{
+background:#e74c3c;
+color:white;
+}
+
+.delete:hover{
+background:#c0392b;
+transform:scale(1.05);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+<h2>📜 Danh sách bài thơ chờ duyệt</h2>
+<div id="list"></div>
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+import { 
+getFirestore,
+collection,
+getDocs,
+addDoc,
+deleteDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+/* FIREBASE */
+
+const firebaseConfig={
+apiKey:"AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+authDomain:"banhkietgithunbpoem.firebaseapp.com",
+projectId:"banhkietgithunbpoem",
+storageBucket:"banhkietgithunbpoem.firebasestorage.app",
+messagingSenderId:"429631951698",
+appId:"1:429631951698:web:8c5f6854de3ad22113a08b"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+const list=document.getElementById("list");
+
+/* FORMAT DATE */
+
+function formatDate(time){
+
+if(!time) return "Không rõ";
+
+const d=new Date(time);
+
+return d.toLocaleString("vi-VN");
+
+}
+
+/* LOAD UPLOADS */
+
+async function loadUploads(){
+
+list.innerHTML="";
+
+const snap=await getDocs(collection(db,"temp"));
+
+snap.forEach(docSnap=>{
+
+const data=docSnap.data();
+const id=docSnap.id;
+
+const card=document.createElement("div");
+card.className="card";
+
+card.innerHTML=`
+
+<div class="bg" style="background-image:url('${data.back_img || ""}')"></div>
+
+<div class="card-body">
+
+<div class="title">
+${data.title || "Không tiêu đề"}
+${data.role === "teacher" ? '<span class="clover">🍀 Giáo viên</span>' : ''}
+</div>
+
+<div class="meta">
+Người đăng: <b>${data.username || "Ẩn danh"}</b>
+<br>
+Ngày đăng: ${formatDate(data.created)}
+</div>
+
+<div class="content">${data.content || ""}</div>
+
+<p><b>Thể thơ:</b> ${data.theTho || "Không rõ"}</p>
+
+<p><b>Thể loại:</b> ${data.theLoai || "Không rõ"}</p>
+
+${data.image ? `<img class="poem-image" src="${data.image}">` : ""}
+
+${data.audio ? `<audio controls src="${data.audio}"></audio>` : ""}
+
+<div class="buttons">
+<button class="approve">✔ Duyệt</button>
+<button class="delete">✖ Xóa</button>
+</div>
+
+</div>
+
+`;
+
+const approveBtn=card.querySelector(".approve");
+const deleteBtn=card.querySelector(".delete");
+
+/* DUYỆT */
+
+approveBtn.onclick=async()=>{
+
+try{
+
+approveBtn.disabled=true;
+approveBtn.innerText="Đang duyệt...";
+
+const poemData={
+title:data.title || "",
+content:data.content || "",
+back_img:data.back_img || "",
+image:data.image || "",
+audio:data.audio || "",
+theTho:data.theTho || "",
+theLoai:data.theLoai || "",
+username:data.username || "Ẩn danh",
+created:data.created || Date.now(),
+status:"approved"
+};
+
+await addDoc(collection(db,"uploads"),poemData);
+await deleteDoc(doc(db,"temp",id));
+
+card.remove();
+
+alert("Đã duyệt bài thơ");
+
+}catch(err){
+
+console.error(err);
+alert("Lỗi khi duyệt bài thơ");
+
+approveBtn.disabled=false;
+approveBtn.innerText="✔ Duyệt";
+
+}
+
+};
+
+/* DELETE */
+
+deleteBtn.onclick=async()=>{
+
+if(!confirm("Xóa bài thơ này?")) return;
+
+try{
+
+await deleteDoc(doc(db,"temp",id));
+card.remove();
+alert("Đã xóa bài thơ");
+
+}catch(err){
+
+console.error(err);
+alert("Lỗi khi xóa");
+
+}
+
+};
+
+list.appendChild(card);
+
+});
+
+}
+
+loadUploads();
+
+</script>
+<script src="/main_js/iframe.js"></script>
+</body>
+</html>
