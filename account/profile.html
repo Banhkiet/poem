@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Trang tác giả</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f6f8ff, #eef2ff);
+            margin: 0;
+            padding: 40px;
+        }
+
+        /* container */
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        /* profile card */
+
+        .profile-card {
+            background: white;
+            border-radius: 18px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* avatar */
+
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #dbe4ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: #4b5cff;
+        }
+
+        /* info */
+
+        .profile-info h2 {
+            margin: 0;
+            font-size: 28px;
+            color: #2c3e50;
+        }
+
+        .profile-info p {
+            margin: 6px 0;
+            color: #6c7a89;
+        }
+
+        .stat {
+            margin-top: 6px;
+            font-weight: 600;
+            color: #4b5cff;
+        }
+
+        /* poem list */
+
+        .section-title {
+            font-size: 22px;
+            margin-bottom: 15px;
+            color: #34495e;
+        }
+
+        /* poem card */
+
+        .poem {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: 0.2s;
+        }
+
+        .poem:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .poem h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+        }
+
+        .poem p {
+            margin: 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* date */
+
+        .date {
+            font-size: 13px;
+            color: #999;
+            margin-top: 6px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="profile-card">
+
+            <div class="avatar" id="avatar">?</div>
+
+            <div class="profile-info">
+
+                <h2 id="name"></h2>
+
+                <p id="role"></p>
+
+                <div class="stat">
+                    📜 Số bài thơ: <span id="count">0</span>
+                </div>
+
+            </div>
+
+        </div>
+
+        <h3 class="section-title">Những bài thơ đã đăng</h3>
+
+        <div id="poems"></div>
+
+    </div>
+
+    <script type="module">
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+        const firebaseConfig = {
+            apiKey: "AIza...",
+            authDomain: "banhkietgithunbpoem.firebaseapp.com",
+            projectId: "banhkietgithunbpoem"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        /* lấy username từ URL */
+
+        const params = new URLSearchParams(location.search);
+        const username = params.get("username");
+
+        /* hiển thị username */
+
+        document.getElementById("name").innerText = username;
+
+        /* avatar chữ cái đầu */
+
+        document.getElementById("avatar").innerText = username[0].toUpperCase();
+
+        /* load poems */
+
+        async function loadPoems() {
+
+            const q = query(
+                collection(db, "uploads"),
+                where("username", "==", username)
+            );
+
+            const snap = await getDocs(q);
+
+            document.getElementById("count").innerText = snap.size;
+
+            const poemsDiv = document.getElementById("poems");
+
+            snap.forEach(doc => {
+
+                const data = doc.data();
+
+                const div = document.createElement("div");
+
+                div.className = "poem";
+
+                div.style.cursor = "pointer";
+
+                div.onclick = function () {
+
+                    window.location = "poem.html?id=" + doc.id;
+                };
+                div.innerHTML = `
+
+<h4>${data.title}</h4>
+
+<p>${data.content.substring(0, 180)}...</p>
+
+<div class="date">
+📅 ${new Date(data.created).toLocaleDateString("vi-VN")}
+</div>
+
+`;
+
+                poemsDiv.appendChild(div);
+
+            });
+
+        }
+        async function loadUser() {
+
+            const q = query(
+                collection(db, "users"),
+                where("username", "==", username)
+            );
+
+            const snap = await getDocs(q);
+
+            snap.forEach(doc => {
+
+                const data = doc.data();
+
+                if (data.created) {
+
+                    const date = new Date(data.created)
+                        .toLocaleDateString("vi-VN");
+
+                    document.getElementById("role").innerText =
+                        "📅 Thành viên từ: " + date;
+
+                }
+
+            });
+
+        }
+
+        loadUser();
+        loadPoems();
+
+    </script>
+
+</body>
+
+</html> 

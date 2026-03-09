@@ -1,16 +1,14 @@
 const config = {
 
-    // ===== THỂ THƠ =====
     theTho: [
         "LỤC BÁT",
         "THẤT NGÔN",
         "TỰ DO",
         "NGŨ NGÔN",
         "SONG THẤT LỤC BÁT",
-	"KHÁC", 
+        "KHÁC"
     ],
 
-    // ===== THỂ LOẠI =====
     theLoai: [
         "QUÊ HƯƠNG",
         "TÌNH YÊU",
@@ -18,82 +16,93 @@ const config = {
         "CUỘC SỐNG",
         "BUỒN",
         "KHÁC"
-    ],
-
-    // ===== ÂM THANH =====
-    amThanh: [
-        {
-            name: "Không dùng",
-            file: ""
-        },
-        {
-            name: "Nhạc quê hương",
-            file: "audio/quehuong.mp3"
-        },
-        {
-            name: "Nhạc buồn",
-            file: "audio/buon.mp3"
-        }
     ]
 
 };
 
-window.addEventListener("DOMContentLoaded", function(){
+document.addEventListener("DOMContentLoaded", async function(){
 
-    const theThoSelect = document.getElementById("theTho");
-    const theLoaiSelect = document.getElementById("theLoai");
-    const amThanhSelect = document.getElementById("amThanh");
+const theThoSelect = document.getElementById("theTho");
+const theLoaiSelect = document.getElementById("theLoai");
+const amThanhSelect = document.getElementById("amThanh");
 
-    // ===== OPTION TẤT CẢ =====
-    const optionAll1 = document.createElement("option");
-    optionAll1.value = "";
-    optionAll1.textContent = "TẤT CẢ";
-    theThoSelect.appendChild(optionAll1);
+/* ===== OPTION TẤT CẢ ===== */
 
-    const optionAll2 = document.createElement("option");
-    optionAll2.value = "";
-    optionAll2.textContent = "TẤT CẢ";
-    theLoaiSelect.appendChild(optionAll2);
+const optionAll1 = document.createElement("option");
+optionAll1.value = "";
+optionAll1.textContent = "TẤT CẢ";
+theThoSelect.appendChild(optionAll1);
 
-    const optionAll3 = document.createElement("option");
-    optionAll3.value = "";
-    optionAll3.textContent = "TẤT CẢ";
-    amThanhSelect.appendChild(optionAll3);
+const optionAll2 = document.createElement("option");
+optionAll2.value = "";
+optionAll2.textContent = "TẤT CẢ";
+theLoaiSelect.appendChild(optionAll2);
 
+/* ===== ÂM THANH ===== */
 
-    // ===== THỂ THƠ =====
-    config.theTho.forEach(item => {
+const audioOptions = [
+{value:"",text:"TẤT CẢ"},
+{value:"co",text:"CÓ ÂM THANH"},
+{value:"khong",text:"KHÔNG CÓ ÂM THANH"}
+];
 
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
+audioOptions.forEach(item=>{
+const option=document.createElement("option");
+option.value=item.value;
+option.textContent=item.text;
+amThanhSelect.appendChild(option);
+});
 
-        theThoSelect.appendChild(option);
+/* ===== THỂ THƠ ===== */
 
-    });
+config.theTho.forEach(item=>{
+const option=document.createElement("option");
+option.value=item;
+option.textContent=item;
+theThoSelect.appendChild(option);
+});
 
+/* ===== THỂ LOẠI ===== */
 
-    // ===== THỂ LOẠI =====
-    config.theLoai.forEach(item => {
+config.theLoai.forEach(item=>{
+const option=document.createElement("option");
+option.value=item;
+option.textContent=item;
+theLoaiSelect.appendChild(option);
+});
 
-        const option = document.createElement("option");
-        option.value = item;
-        option.textContent = item;
+/* ===== KIỂM TRA AUDIO ===== */
 
-        theLoaiSelect.appendChild(option);
+async function checkAudio(poem){
 
-    });
+try{
 
+const res=await fetch(poem.audioFile,{method:"HEAD"});
 
-    // ===== ÂM THANH =====
-    config.amThanh.forEach(item => {
+poem.audio = res.ok ? "co" : "khong";
 
-        const option = document.createElement("option");
-        option.value = item.file;
-        option.textContent = item.name;
+}catch(e){
 
-        amThanhSelect.appendChild(option);
+poem.audio="khong";
 
-    });
+}
+
+}
+
+/* ===== LOAD AUDIO STATUS ===== */
+
+async function loadAudioStatus(){
+
+if(typeof poems==="undefined") return;
+
+const tasks = poems.map(p=>checkAudio(p));
+
+await Promise.all(tasks);
+
+}
+
+/* ===== INIT ===== */
+
+await loadAudioStatus();
 
 });
