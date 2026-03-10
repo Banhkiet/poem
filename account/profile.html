@@ -139,6 +139,61 @@
             }
 
         }
+
+        /* BACK BUTTON */
+
+        /* ===== NÚT BACK ===== */
+
+/* ===== NÚT BACK ===== */
+
+.back-btn{
+    position: fixed;
+    top: 15px;
+    left: 50px;
+    z-index: 999;
+
+    cursor: pointer;
+}
+
+/* icon */
+
+.back-btn img{
+
+    width: 46px;
+
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.25));
+
+    transition: 
+        transform 0.25s ease,
+        filter 0.25s ease;
+}
+
+/* hover */
+
+.back-btn:hover img{
+
+    transform: scale(1.15) translateX(-3px);
+
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.35));
+
+    animation: softShake 0.5s ease;
+}
+
+/* rung nhẹ */
+
+@keyframes softShake{
+
+    0%{ transform: rotate(0deg) scale(1.15); }
+
+    25%{ transform: rotate(-6deg) scale(1.15); }
+
+    50%{ transform: rotate(6deg) scale(1.15); }
+
+    75%{ transform: rotate(-4deg) scale(1.15); }
+
+    100%{ transform: rotate(0deg) scale(1.15); }
+
+}
     </style>
 
 </head>
@@ -146,7 +201,11 @@
 <body>
 
     <div class="container">
+        <a class="back-btn" href="manager_user.html" target="contentFrame">
+            <img src="icon.jpg">
+        </a>
 
+        </button>
         <div class="profile-card">
 
             <div class="avatar" id="avatar">?</div>
@@ -275,6 +334,8 @@
 
     </script>
     <script src="../main_js/iframe.js"></script>
+    <script>
+    </script>
 </body>
 
 </html>

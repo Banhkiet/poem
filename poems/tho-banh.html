@@ -241,6 +241,7 @@ select{
 
 
 </pre>
+
 <script>
 /* ================= HELPER ================= */
 
@@ -479,16 +480,12 @@ async function loadPoemContents() {
             suggestionBox.style.display = "none";
         }
     });
-/* ================= AUTO RESIZE IFRAME ================= */
-
 /* ================= INIT LOAD ================= */
-
+/* ================= AUTO RESIZE IFRAME ================= */
 await loadPoemContents();   // tải nội dung bài thơ
 renderPoems(poems);        // hiển thị tất cả bài thơ ban đầu
 });
 </script>
-
 <script src="../main_js/iframe.js"></script>
-
 </body>
 </html>

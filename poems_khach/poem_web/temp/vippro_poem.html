@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Không gian thơ</title>
+
+<style>
+
+/* ================= BODY ================= */
+
+body{
+font-family:"Times New Roman",serif;
+background:#f4f6fb;
+padding:50px;
+transition:0.4s;
+overflow-x:hidden;
+}
+
+.super-mode{
+background:#0d0f17;
+color:#eee;
+}
+
+/* ================= CONTAINER ================= */
+
+.container{
+max-width:700px;
+margin:auto;
+}
+
+/* ================= TITLE ================= */
+
+.title{
+font-size:34px;
+text-align:center;
+margin-bottom:20px;
+}
+
+/* ================= POEM ================= */
+
+.line{
+font-size:22px;
+margin:10px 0;
+cursor:pointer;
+opacity:1;
+transition:0.4s;
+}
+
+.line.show{
+opacity:1;
+transform:none;
+}
+
+/* ================= COMMENT ================= */
+
+.comment-box{
+margin-left:20px;
+margin-bottom:10px;
+}
+
+.comment{
+background:#eef2ff;
+padding:5px 8px;
+border-radius:4px;
+margin:3px 0;
+font-size:14px;
+}
+
+.comment small{
+color:#666;
+margin-left:6px;
+}
+
+/* ================= BUTTONS ================= */
+
+button{
+padding:8px 14px;
+margin-top:10px;
+cursor:pointer;
+border:none;
+border-radius:6px;
+background:#e9ecff;
+}
+
+/* ================= EMOTIONS ================= */
+
+.emotions{
+margin-top:30px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.emotion{
+padding:6px 10px;
+border-radius:20px;
+background:#e9ecff;
+cursor:pointer;
+}
+
+.emotion:hover{
+transform:scale(1.1);
+}
+
+/* ================= ECHO ================= */
+
+.echo{
+margin-top:40px;
+}
+
+.echo input{
+width:100%;
+padding:8px;
+}
+
+.echo-list{
+margin-top:10px;
+font-style:italic;
+}
+
+/* ================= FIREFLY ================= */
+
+.firefly{
+position:fixed;
+width:6px;
+height:6px;
+background:#ffe66d;
+border-radius:50%;
+opacity:0.7;
+animation:fly 6s linear infinite;
+}
+
+@keyframes fly{
+0%{transform:translateY(0)}
+100%{transform:translateY(-800px)}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">
+Mẹ Già
+</div>
+
+<div id="poem">
+
+<div class="line">Mẹ già tóc bạc như sương</div>
+<div class="line">Chiều chiều tựa cửa nhớ thương con hoài</div>
+<div class="line">Cơm nghèo khói bếp đơn côi</div>
+<div class="line">Con đi biền biệt cuối trời chưa về</div>
+
+</div>
+
+
+<button id="toggleComment">
+💬 Bật comment theo dòng
+</button>
+
+<button id="superMode">
+🌌 Đọc thơ siu cấp
+</button>
+
+
+<div class="emotions">
+
+<div class="emotion" data-type="bangkhuang">🌙 Bâng khuâng</div>
+<div class="emotion" data-type="buon">🌧 Buồn</div>
+<div class="emotion" data-type="yen">🍃 An yên</div>
+<div class="emotion" data-type="hung">🔥 Nhiệt huyết</div>
+
+</div>
+
+<div id="emotionResult"></div>
+
+
+<div class="echo">
+
+<h3>Dư âm bài thơ</h3>
+
+<input id="echoInput" placeholder="Một dòng cảm nhận...">
+
+<button id="sendEcho">Gửi</button>
+
+<div id="echoList" class="echo-list"></div>
+
+</div>
+
+
+<button id="saveBtn">
+📚 Lưu vào sổ thơ
+</button>
+
+</div>
+
+
+<audio id="poemAudio" src="poem.mp3"></audio>
+
+
+<script>
+
+/* ================= USER ================= */
+
+const username="Khách";
+
+/* ================= COMMENT MODE ================= */
+
+let commentMode=false;
+
+const lines=document.querySelectorAll(".line");
+
+const toggleBtn=document.getElementById("toggleComment");
+
+toggleBtn.onclick=()=>{
+
+commentMode=!commentMode;
+
+toggleBtn.innerText=
+commentMode?
+"💬 Tắt comment theo dòng":
+"💬 Bật comment theo dòng";
+
+};
+
+
+/* ================= COMMENT ================= */
+
+lines.forEach((line,i)=>{
+
+line.addEventListener("click",()=>{
+
+if(!commentMode) return;
+
+let box=line.nextElementSibling;
+
+if(!box || !box.classList.contains("comment-box")){
+
+box=document.createElement("div");
+
+box.className="comment-box";
+
+const input=document.createElement("input");
+
+input.placeholder="Viết bình luận...";
+
+const list=document.createElement("div");
+
+input.addEventListener("keypress",(e)=>{
+
+if(e.key==="Enter"){
+
+const div=document.createElement("div");
+
+div.className="comment";
+
+const time=new Date().toLocaleTimeString();
+
+div.innerHTML=
+username+
+" <small>"+time+"</small> : "+
+input.value;
+
+list.appendChild(div);
+
+input.value="";
+
+}
+
+});
+
+box.appendChild(input);
+box.appendChild(list);
+
+line.after(box);
+
+}
+
+});
+
+});
+
+
+/* ================= EMOTION ================= */
+
+const poemID="poem1";
+
+let emotions=
+JSON.parse(localStorage.getItem(poemID+"_emo"))||{};
+
+document.querySelectorAll(".emotion").forEach(btn=>{
+
+btn.onclick=()=>{
+
+const type=btn.dataset.type;
+
+emotions[type]=(emotions[type]||0)+1;
+
+localStorage.setItem(
+poemID+"_emo",
+JSON.stringify(emotions)
+);
+
+showEmotion();
+
+};
+
+});
+
+function showEmotion(){
+
+let html="<h4>Cảm xúc người đọc</h4>";
+
+for(let k in emotions){
+
+html+=k+" : "+emotions[k]+"<br>";
+
+}
+
+document.getElementById("emotionResult").innerHTML=html;
+
+}
+
+showEmotion();
+
+
+/* ================= ECHO ================= */
+
+let echoes=
+JSON.parse(localStorage.getItem(poemID+"_echo"))||[];
+
+const echoList=document.getElementById("echoList");
+
+function renderEcho(){
+
+echoList.innerHTML="";
+
+echoes.forEach(e=>{
+
+const div=document.createElement("div");
+
+div.innerText="“"+e+"”";
+
+echoList.appendChild(div);
+
+});
+
+}
+
+renderEcho();
+
+document.getElementById("sendEcho").onclick=()=>{
+
+const input=document.getElementById("echoInput");
+
+if(!input.value) return;
+
+echoes.push(input.value);
+
+localStorage.setItem(
+poemID+"_echo",
+JSON.stringify(echoes)
+);
+
+input.value="";
+
+renderEcho();
+
+};
+
+
+/* ================= SAVE ================= */
+
+document.getElementById("saveBtn").onclick=()=>{
+
+let saved=
+JSON.parse(localStorage.getItem("saved_poems"))||[];
+
+if(!saved.includes(poemID)){
+
+saved.push(poemID);
+
+localStorage.setItem(
+"saved_poems",
+JSON.stringify(saved)
+);
+
+alert("Đã lưu vào sổ thơ 📚");
+
+}
+
+};
+
+
+/* ================= SUPER MODE ================= */
+
+const superBtn=document.getElementById("superMode");
+
+const audio=document.getElementById("poemAudio");
+
+superBtn.onclick=()=>{
+
+document.body.classList.toggle("super-mode");
+
+/* tắt comment */
+
+commentMode=false;
+
+toggleBtn.innerText="💬 Bật comment theo dòng";
+
+/* phát nhạc */
+
+audio.play();
+
+/* chữ hiện dần */
+
+lines.forEach((l,i)=>{
+
+l.style.opacity="0";
+
+setTimeout(()=>{
+
+l.style.opacity="1";
+
+},700*i);
+
+});
+
+/* đom đóm */
+
+spawnFireflies();
+
+};
+
+
+/* ================= FIREFLY ================= */
+
+function spawnFireflies(){
+
+for(let i=0;i<20;i++){
+
+const f=document.createElement("div");
+
+f.className="firefly";
+
+f.style.left=Math.random()*100+"%";
+
+f.style.top=Math.random()*100+"%";
+
+document.body.appendChild(f);
+
+}
+
+}
+
+</script>
+
+</body>
+
+</html>

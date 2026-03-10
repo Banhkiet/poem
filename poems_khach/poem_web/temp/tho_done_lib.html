@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Không gian thơ</title>
+
+    <style>
+        /* ================= BODY ================= */
+
+        body {
+            font-family: "Times New Roman", serif;
+            background: #f3f6ff;
+            padding: 50px;
+            transition: 0.4s;
+            overflow-x: hidden;
+            color: #222;
+        }
+
+        /* ================= CONTAINER ================= */
+
+        .container {
+            max-width: 720px;
+            margin: auto;
+        }
+
+        /* ================= TITLE ================= */
+
+        .title {
+            font-size: 34px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        /* ================= POEM ================= */
+
+        .line {
+            font-size: 22px;
+            margin: 10px 0;
+            cursor: pointer;
+            line-height: 1.6;
+        }
+
+        /* ================= COMMENT ================= */
+
+        .comment-box {
+            margin: 10px 0 16px 20px;
+            padding: 10px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .comment {
+            background: #FFE4C4;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin: 4px 0;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+        .comment small {
+            color: #FFE4C4;
+            margin-left: 6px;
+        }
+
+        .username {
+            color: #2f4cff;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .username:hover {
+            text-decoration: underline;
+        }
+
+        /* ================= BUTTONS ================= */
+
+        button {
+            padding: 8px 14px;
+            margin: 6px 6px 0 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #toggleComment {
+            background: #e6eaff;
+        }
+
+        #toggleComment.active {
+            background: #2ecc71;
+            color: yellowgreen;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+            border: 1px solid #1e9e52;
+        }
+
+        #superMode {
+            background: #e6eaff;
+            transition: 0.25s;
+        }
+
+        /* khi bật super mode */
+        .super-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .super-mode #superMode {
+            background: #2ecc71;
+            color: yellowgreen;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+            border: 1px solid #1e9e52;
+        }
+
+        /* khi khóa comment */
+
+        .disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* ================= SUPER MODE ================= */
+
+        .super-mode {
+            background: #0f1117;
+            color: yellowgreen;
+        }
+
+        .super-mode .line {
+            color: yellowgreen;
+        }
+
+        .super-mode .title {
+            color: yellowgreen;
+        }
+
+        .super-mode .echo {
+            color: black;
+        }
+
+        /*  hieuej uwngs nut */
+        button {
+            padding: 8px 14px;
+            margin: 6px 6px 0 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ================= FIREFLY ================= */
+
+        .firefly {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: #ffe66d;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fly 6s linear infinite;
+        }
+
+        @keyframes fly {
+            0% {
+                transform: translateY(0)
+            }
+
+            100% {
+                transform: translateY(-900px)
+            }
+        }
+
+        /* ================= ECHO ================= */
+        /* ================= ECHO COMMENT ================= */
+        .echo-text {
+            white-space: pre-wrap;
+        }
+
+        .echo-comment {
+            background: #FFE4C4;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .echo-comment .username {
+            color: #2e8b57;
+            /* xanh lá cho comment chính */
+            font-weight: bold;
+        }
+
+        /* reply */
+
+        .reply {
+            margin-left: 35px;
+            margin-top: 6px;
+            padding: 6px 8px;
+            background: #FFE4C4;
+            border-radius: 6px;
+        }
+
+        .reply .username {
+            color: #2f4cff;
+            font-style: italic;
+        }
+
+        /* buttons */
+
+        .sendBtn {
+            background: #4caf50;
+            color: yellowgreen;
+        }
+
+        .replyBtn {
+            background: #e7dcff;
+        }
+
+        .deleteBtn {
+            background: #ffd6d6;
+        }
+
+        /* ================= POEM ================= */
+        .line {
+            font-size: 22px;
+            margin: 10px 0;
+            cursor: pointer;
+            line-height: 1.6;
+        }
+
+        /* Thêm hover cho các ký tự trong dòng khi bật comment */
+        .line span {
+            transition: color 0.3s ease;
+        }
+
+        /* Khi hover vào từng ký tự */
+        .line.hover:hover {
+            color: #2ecc71;
+            text-shadow: 0 0 6px rgba(46, 204, 113, 0.6);
+        }
+
+        .line span {
+            opacity: 0;
+            animation: fadeIn 0.4s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        #reactionBar button {
+            background: #e6eaff;
+            margin: 4px;
+        }
+
+        #reactionBar button.active {
+            background: #8ea2ff;
+            color: yellowgreen;
+        }
+
+        #reactionStats {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .reaction-board {
+            background: #eef4ff;
+            padding: 14px;
+            border-radius: 12px;
+            width: 360px;
+            margin-top: 80px;
+        }
+
+        .reaction-title {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .reaction-row {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            gap: 10px;
+        }
+
+        .emoji {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .bar {
+            flex: 1;
+            height: 6px;
+            background: #dde4f2;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            width: 0%;
+            background: #4c6ef5;
+            transition: 0.4s;
+        }
+
+        .avatars {
+            display: flex;
+        }
+
+        .avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #3a6ea5;
+            color: yellowgreen;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: -6px;
+            border: 2px solid yellowgreen;
+        }
+
+        .echo-comment {
+            background: #FFF8E8;
+            padding: 8px;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+
+        /* CÁC NÚT NHẤN PHẢN HỒI GỬI */
+        #sendEcho {
+            background: #4CAF50;
+            color: yellowgreen;
+        }
+
+        .replyBtn {
+            background: #e9ddff;
+        }
+
+        .deleteBtn {
+            background: #ffd7d7;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            transition: 0.2s;
+        }
+
+        .duam {
+            background-color: #e9ddff;
+        }
+
+        .inputBox {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: "Times New Roman", serif;
+            resize: vertical;
+            white-space: pre-wrap;
+            margin-top: 6px;
+        }
+
+        #echoInput {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: "Times New Roman", serif;
+            resize: vertical;
+            white-space: pre-wrap;
+            margin-top: 6px;
+        }
+
+        /* ===== SUPER MODE UI FIX ===== */
+
+        .super-mode .echo {
+            background: #1a1d26;
+            padding: 14px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .super-mode .duam {
+            background: #2b2f3a;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .super-mode .echo-comment {
+            background: #232733;
+            color: #ddd;
+        }
+
+        .super-mode .reply {
+            background: #1e2230;
+            color: #ddd;
+        }
+
+        .super-mode #echoInput {
+            background: #11141c;
+            color: yellowgreen;
+            border: 1px solid #333;
+        }
+
+        .super-mode button {
+            background: #FFF8E8;
+            color: yellowgreen;
+        }
+
+        .echo {
+            margin-top: 30px;
+            padding: 16px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="title">
+            Mẹ Già
+        </div>
+
+        <div id="poem">
+
+            <div class="line">Mẹ già tóc bạc như sương</div>
+            <div class="line">Chiều chiều tựa cửa nhớ thương con hoài</div>
+            <div class="line">Cơm nghèo khói bếp đơn côi</div>
+            <div class="line">Con đi biền biệt cuối trời chưa về</div>
+
+        </div>
+
+        <div class="reaction-board">
+            <h3 class="reaction-title">Cảm xúc người đọc</h3>
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="sad">😢</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-sad"></div>
+                </div>
+
+                <div class="avatars" id="avatar-sad"></div>
+            </div>
+
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="happy">😊</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-happy"></div>
+                </div>
+
+                <div class="avatars" id="avatar-happy"></div>
+            </div>
+
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="romantic">💖</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-romantic"></div>
+                </div>
+
+                <div class="avatars" id="avatar-romantic"></div>
+            </div>
+
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="fire">🔥</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-fire"></div>
+                </div>
+
+                <div class="avatars" id="avatar-fire"></div>
+            </div>
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="cool">❄️</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-cool"></div>
+                </div>
+
+                <div class="avatars" id="avatar-cool"></div>
+            </div>
+
+
+
+
+        </div>
+
+        <div id="reactionStats"></div>
+        <div class="super-bar">
+
+            <button id="superMode">
+                🌌 Đọc thơ siu cấp
+            </button>
+
+            <div id="musicControl">
+                <audio id="poemAudio" controls src="audio.mp3"></audio>
+            </div>
+
+        </div>
+        <button id="toggleComment">
+            💬 Bật comment theo dòng
+        </button>
+
+
+        <div class="echo">
+            <button id="savePoem">📚 Lưu vào sổ thơ</button>
+            <h3 class="duam">Dư âm bài thơ</h3>
+
+            <textarea id="echoInput" placeholder="Viết dư âm... (Ctrl + Enter để gửi)"></textarea> <button
+                id="sendEcho">Gửi</button>
+
+            <div id="echoList"></div>
+
+        </div>
+
+    </div>
+
+    <audio id="poemAudio" src="audio.mp3"></audio>
+
+    <script>
+        let typeTimers = [];
+        /* ================= USER ================= */
+        const username = "NguyenBanh";
+
+        /* ================= COMMENT MODE ================= */
+        let commentMode = false;
+        let lines = document.querySelectorAll(".line");
+        /* lưu nội dung gốc */
+        lines.forEach(line => {
+            line.dataset.original = line.innerText;
+        });
+        const toggleBtn = document.getElementById("toggleComment");
+
+        /* bật tắt comment */
+        toggleBtn.onclick = () => {
+            commentMode = !commentMode;
+            toggleBtn.classList.toggle("active");   // dòng thêm
+
+            toggleBtn.innerText = commentMode ? "💬 Tắt comment theo dòng" : "💬 Bật comment theo dòng";
+
+            // Thêm hoặc bỏ class hover vào mỗi dòng tùy vào trạng thái commentMode
+            lines.forEach(line => {
+                if (commentMode) {
+                    line.classList.add("hover");
+                } else {
+                    line.classList.remove("hover");
+                }
+            });
+
+            // Ẩn/hiện comment
+            document.querySelectorAll(".comment-box").forEach(box => {
+                box.style.display = commentMode ? "block" : "none";
+            });
+        };
+
+        /* ================= COMMENT ================= */
+        function initLineComments() {
+
+            lines.forEach((line, index) => {
+
+                line.addEventListener("click", () => {
+
+                    if (!commentMode) return;
+
+                    let box = line.nextElementSibling;
+
+                    if (!box || !box.classList.contains("comment-box")) {
+
+                        box = document.createElement("div");
+                        box.className = "comment-box";
+
+                        box.innerHTML = `
+<textarea class="inputBox lineInput" 
+placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"></textarea>
+
+<button class="sendBtn">Gửi</button>
+
+<div class="comment-thread"></div>
+`;
+
+                        line.after(box);
+
+                        const input = box.querySelector(".lineInput");
+                        const sendBtn = box.querySelector(".sendBtn");
+                        const list = box.querySelector(".comment-thread");
+                        input.addEventListener("keydown", e => {
+
+                            if (e.ctrlKey && e.key === "Enter") {
+
+                                if (!input.value.trim()) return;
+
+                                createLineComment(list, input.value, index);
+
+                                attachEvents(list, index);
+
+                                input.value = "";
+
+                            }
+
+                        });
+
+
+                        /* load comment */
+
+                        const saved = JSON.parse(localStorage.getItem("lineComments") || "{}");
+
+                        if (saved[index]) {
+                            list.innerHTML = saved[index];
+                            attachEvents(list, index);
+                        }
+
+                        /* gửi comment */
+
+                        sendBtn.onclick = () => {
+
+                            if (!input.value.trim()) return;
+
+                            createLineComment(list, input.value, index);
+
+                            attachEvents(list, index);   // THÊM DÒNG NÀY
+
+                            input.value = "";
+
+                        };
+
+                    }
+
+                });
+
+            });
+
+        }
+        /*   luu cmt theo dong */
+        function saveLineThread(index, list) {
+
+            const data = JSON.parse(localStorage.getItem("lineComments") || "{}");
+
+            data[index] = list.innerHTML;
+
+            localStorage.setItem("lineComments", JSON.stringify(data));
+
+        }
+        function attachEvents(list, index) {
+
+            list.querySelectorAll(".deleteBtn").forEach(btn => {
+
+                btn.onclick = () => {
+
+                    if (confirm("Xóa bình luận?")) {
+
+                        btn.closest(".echo-comment,.reply").remove();
+                        saveLineThread(index, list);
+
+                    }
+
+                };
+
+            });
+
+            list.querySelectorAll(".replyBtn").forEach(btn => {
+
+                btn.onclick = () => {
+
+                    const parent = btn.closest(".echo-comment,.reply");
+                    const replyBox = parent.querySelector(".replyBox");
+
+                    if (replyBox.querySelector(".replyInput")) return;
+
+                    const wrap = document.createElement("div");
+
+                    wrap.innerHTML = `
+<textarea class="inputBox replyInput" rows="2"></textarea>
+<button class="sendBtn">Gửi</button>
+`;
+
+                    replyBox.appendChild(wrap);
+
+                    wrap.querySelector(".sendBtn").onclick = () => {
+
+                        const val = wrap.querySelector("textarea").value;
+
+                        if (!val.trim()) return;
+
+                        createReply(replyBox, val);
+
+                        wrap.remove();
+
+                        saveLineThread(index, list);
+
+                    };
+
+                };
+
+            });
+
+        }
+
+
+
+
+
+
+        /* ================= SUPER MODE ================= */
+        const superBtn = document.getElementById("superMode");
+        const audio = document.getElementById("poemAudio");
+        const musicBox = document.getElementById("musicControl");
+        let fireflies = [];
+
+        superBtn.onclick = () => {
+
+            const body = document.body;
+
+            body.classList.toggle("super-mode");
+
+            const active = body.classList.contains("super-mode");
+
+            /* khóa comment */
+
+            toggleBtn.classList.toggle("disabled", active);
+
+            commentMode = false;
+
+            toggleBtn.innerText = "💬 Bật comment theo dòng";
+
+            /* ẩn comment */
+
+            document.querySelectorAll(".comment-box").forEach(box => {
+                box.style.display = "none";
+            });
+
+            /* reset mp3 */
+
+            audio.pause();
+            audio.currentTime = 0;
+
+            /* bật super mode */
+
+            if (active) {
+
+                musicBox.style.display = "block";
+                audio.play();
+
+                resetPoem();       // đảm bảo không ghi đè
+
+                animatePoem();
+
+                spawnFireflies();
+
+            }
+
+            /* tắt super mode */
+
+            else {
+
+                stopAnimation();
+                removeFireflies();
+                resetPoem();
+
+                musicBox.style.display = "none";
+
+                audio.pause();
+                audio.currentTime = 0;
+
+            }
+
+        };
+
+        /* ================= CHẠY CHỮ ================= */
+        function animatePoem() {
+
+            let delay = 0;
+
+            /* reset mảng timer */
+
+            typeTimers = [];
+
+            lines.forEach(line => {
+
+                const text = line.dataset.original;
+
+                line.innerHTML = "";
+
+                [...text].forEach((char, i) => {
+
+                    const timer = setTimeout(() => {
+
+                        const span = document.createElement("span");
+
+                        span.innerHTML = char === " " ? "&nbsp;" : char;
+
+                        line.appendChild(span);
+
+                    }, delay + 50 * i);
+
+                    /* lưu timer */
+
+                    typeTimers.push(timer);
+
+                });
+
+                delay += text.length * 50 + 300;
+
+            });
+
+        }
+
+        /* ================= RESET POEM ================= */
+        function resetPoem() {
+
+            lines.forEach(line => {
+                line.innerText = line.dataset.original;
+            });
+
+        }
+
+        /* ================= FIREFLY ================= */
+        function spawnFireflies() {
+            for (let i = 0; i < 25; i++) {
+                const f = document.createElement("div");
+                f.className = "firefly";
+                f.style.left = Math.random() * 100 + "%";
+                f.style.top = Math.random() * 100 + "%";
+                document.body.appendChild(f);
+                fireflies.push(f);
+            }
+        }
+
+        function removeFireflies() {
+            fireflies.forEach(f => f.remove());
+            fireflies = [];
+        }
+        function stopAnimation() {
+
+            typeTimers.forEach(t => clearTimeout(t));
+
+            typeTimers = [];
+
+        }
+        /* ================= REACTION ================= */
+
+        const reactions = {
+            sad: [],
+            happy: [],
+            romantic: [],
+            fire: [],
+            cool: []
+        };
+
+        const maxReactions = 3;
+
+        const userReactions = new Set();
+
+        const reactBtns = document.querySelectorAll(".reactBtn");
+
+        function updateBars() {
+
+            for (let type in reactions) {
+
+                const count = reactions[type].length;
+
+                const width = Math.min(count * 12, 100);
+
+                document.getElementById("bar-" + type).style.width = width + "%";
+
+                const avatarBox = document.getElementById("avatar-" + type);
+
+                avatarBox.innerHTML = "";
+
+                reactions[type].forEach(u => {
+
+                    const av = document.createElement("div");
+
+                    av.className = "avatar";
+
+                    av.innerText = u[0].toUpperCase();
+
+                    avatarBox.appendChild(av);
+
+                });
+
+            }
+
+        }
+
+        reactBtns.forEach(btn => {
+
+            btn.onclick = () => {
+
+                const type = btn.dataset.type;
+
+                if (userReactions.has(type)) {
+
+                    userReactions.delete(type);
+
+                    reactions[type] = reactions[type].filter(u => u !== username);
+
+                }
+
+                else {
+
+                    if (userReactions.size >= maxReactions) {
+
+                        alert("Chỉ được thả tối đa 3 cảm xúc");
+
+                        return;
+
+                    }
+
+                    userReactions.add(type);
+
+                    reactions[type].push(username);
+
+                }
+
+                updateBars();
+
+            };
+
+        });
+        /* ================= ECHO COMMENT ================= */
+
+        const echoInput = document.getElementById("echoInput");
+        const echoList = document.getElementById("echoList");
+
+        document.getElementById("sendEcho").onclick = () => {
+            echoInput.addEventListener("keydown", e => {
+
+                if (e.ctrlKey && e.key === "Enter") {
+
+                    e.preventDefault();
+
+                    if (!echoInput.value.trim()) return;
+
+                    createComment(username, echoInput.value);
+
+                    echoInput.value = "";
+
+                    saveEcho();
+
+                }
+
+            });
+            if (!echoInput.value.trim()) return;
+
+            createComment(username, echoInput.value);
+
+            echoInput.value = "";
+
+            saveEcho();
+
+        };
+
+        function createComment(user, text, save = true) {
+
+            const div = document.createElement("div");
+            div.className = "echo-comment";
+            const now = new Date();
+            const time = now.toLocaleString();
+            div.innerHTML = `
+<a class="username" href="profile.html?user=${user}">${user}</a>
+<small>${time}</small>
+<div class="echo-text"></div>
+
+<div class="echo-actions">
+<button class="replyBtn">Phản hồi</button>
+<button class="deleteBtn">Xóa</button>
+<button class="likeBtn">❤️ 0</button>
+</div>
+
+<div class="replyBox"></div>
+`;
+            div.querySelector(".echo-text").innerText = text;
+            echoList.prepend(div);
+
+            /* like */
+
+            let likes = 0;
+
+            div.querySelector(".likeBtn").onclick = () => {
+
+                likes++;
+                div.querySelector(".likeBtn").innerText = "❤️ " + likes;
+
+                saveEcho();
+
+            };
+
+            /* delete comment */
+
+            div.querySelector(".deleteBtn").onclick = () => {
+
+                if (confirm("Xóa bình luận này?")) {
+
+                    div.remove();
+                    saveEcho();
+
+                }
+
+            };
+
+            /* reply */
+
+            div.querySelector(".replyBtn").onclick = () => {
+
+                const replyBox = div.querySelector(".replyBox");
+
+                /* tránh mở nhiều ô */
+
+                if (replyBox.querySelector(".replyInput")) return;
+
+                const wrap = document.createElement("div");
+
+                wrap.innerHTML = `
+
+<textarea class="inputBox replyInput" rows="2"></textarea>
+<button class="sendBtn">Gửi</button>
+
+`;
+
+                replyBox.appendChild(wrap);
+
+                const input = wrap.querySelector("textarea");
+
+                input.addEventListener("keydown", e => {
+
+                    if (e.ctrlKey && e.key === "Enter") {
+
+                        e.preventDefault();
+
+                        if (!input.value.trim()) return;
+
+                        createReply(replyBox, input.value);
+
+                        wrap.remove();
+
+                        saveEcho();
+
+                    }
+
+                });
+
+                wrap.querySelector(".sendBtn").onclick = () => {
+
+                    if (!input.value.trim()) return;
+
+                    createReply(replyBox, input.value);
+
+                    wrap.remove();
+
+                    saveEcho();
+
+                };
+
+            };
+
+            if (save) saveEcho();
+
+        }
+        function createLineComment(list, text, lineIndex) {
+
+            const div = document.createElement("div");
+            div.className = "echo-comment";
+            const now = new Date();
+            const time = now.toLocaleString();
+            div.innerHTML = `
+<a class="username" href="profile.html?user=${username}">${username}</a>
+<small>${time}</small>
+<div class="echo-text"></div>
+
+<div class="echo-actions">
+<button class="replyBtn">Phản hồi</button>
+<button class="deleteBtn">Xóa</button>
+<button class="likeBtn">❤️ 0</button>
+</div>
+
+<div class="replyBox"></div>
+`;
+
+            div.querySelector(".echo-text").innerText = text;
+
+            list.prepend(div);
+
+            /* like */
+
+            let likes = 0;
+
+            div.querySelector(".likeBtn").onclick = () => {
+
+                likes++;
+                div.querySelector(".likeBtn").innerText = "❤️ " + likes;
+
+                saveLineThread(lineIndex, list);
+
+            };
+
+            /* delete */
+
+            div.querySelector(".deleteBtn").onclick = () => {
+
+                if (confirm("Xóa bình luận?")) {
+
+                    div.remove();
+                    saveLineThread(lineIndex, list);
+
+                }
+
+            };
+
+            /* reply */
+
+            div.querySelector(".replyBtn").onclick = () => {
+
+                const replyBox = div.querySelector(".replyBox");
+
+                if (replyBox.querySelector(".replyInput")) return;
+
+                const wrap = document.createElement("div");
+
+                wrap.innerHTML = `
+
+<textarea class="inputBox replyInput" rows="2"></textarea>
+<button class="sendBtn">Gửi</button>
+
+`;
+
+                replyBox.appendChild(wrap);
+
+                wrap.querySelector(".sendBtn").onclick = () => {
+
+                    const val = wrap.querySelector("textarea").value;
+
+                    if (!val.trim()) return;
+
+                    createReply(replyBox, val);
+
+                    wrap.remove();
+
+                    saveLineThread(lineIndex, list);
+
+                };
+
+            };
+
+            saveLineThread(lineIndex, list);
+
+        }
+
+
+        function createReply(parent, text) {
+
+            const r = document.createElement("div");
+            r.className = "reply";
+            const now = new Date();
+            const time = now.toLocaleString();
+            r.innerHTML = `
+<a class="username" href="profile.html?user=${username}">${username}</a>
+<small>${time}</small>
+<div class="echo-text"></div>
+
+<button class="replyBtn">Phản hồi</button>
+<button class="deleteBtn">Xóa</button>
+
+<div class="replyBox"></div>
+`;
+            r.querySelector(".echo-text").innerText = text;
+            parent.appendChild(r);
+
+            const replyBox = r.querySelector(".replyBox");
+
+            r.querySelector(".replyBtn").onclick = () => {
+
+                const wrap = document.createElement("div");
+
+                wrap.innerHTML = `
+<textarea class="inputBox replyInput" rows="2"></textarea><button class="sendBtn">Gửi</button>
+`;
+
+                replyBox.appendChild(wrap);
+                const input = wrap.querySelector("textarea");
+
+                input.addEventListener("keydown", e => {
+
+                    if (e.ctrlKey && e.key === "Enter") {
+
+                        e.preventDefault();
+
+                        const val = input.value;
+                        if (!val.trim()) return;
+
+                        createReply(replyBox, val);
+
+                        wrap.remove();
+
+                        saveEcho();
+
+                    }
+
+                });
+                wrap.querySelector(".sendBtn").onclick = () => {
+
+                    const val = wrap.querySelector("textarea").value;
+                    if (!val.trim()) return;
+
+                    createReply(replyBox, val);
+
+                    wrap.remove();
+
+                    saveEcho();
+
+                };
+
+            };
+
+            r.querySelector(".deleteBtn").onclick = () => {
+
+                if (confirm("Xóa phản hồi này?")) {
+
+                    r.remove();
+                    saveEcho();
+
+                }
+
+            };
+
+        }
+
+        document.getElementById("savePoem").onclick = () => {
+
+            let saved = JSON.parse(localStorage.getItem("soTho") || "[]");
+
+            saved.push({
+                title: "Mẹ Già",
+                time: new Date().toLocaleString()
+            });
+
+            localStorage.setItem("soTho", JSON.stringify(saved));
+
+            alert("Đã lưu vào sổ thơ cá nhân");
+
+        };
+        function saveEcho() {
+
+            localStorage.setItem(
+                "echoComments",
+                echoList.innerHTML
+            );
+
+        }
+
+        function loadEcho() {
+
+            const data = localStorage.getItem("echoComments");
+
+            if (data) {
+
+                echoList.innerHTML = data;
+
+                /* DELETE */
+
+                echoList.querySelectorAll(".deleteBtn").forEach(btn => {
+
+                    btn.onclick = () => {
+
+                        if (confirm("Xóa bình luận này?")) {
+
+                            btn.closest(".echo-comment,.reply").remove();
+                            saveEcho();
+
+                        }
+
+                    };
+
+                });
+
+                /* REPLY */
+
+                echoList.querySelectorAll(".replyBtn").forEach(btn => {
+
+                    btn.onclick = () => {
+
+                        const parent = btn.closest(".echo-comment,.reply");
+                        const replyBox = parent.querySelector(".replyBox");
+
+                        if (replyBox.querySelector(".replyInput")) return;
+
+                        const wrap = document.createElement("div");
+
+                        wrap.innerHTML = `
+<textarea class="inputBox replyInput" rows="2"></textarea>
+<button class="sendBtn">Gửi</button>
+`;
+
+                        replyBox.appendChild(wrap);
+
+                        wrap.querySelector(".sendBtn").onclick = () => {
+
+                            const val = wrap.querySelector("textarea").value;
+
+                            if (!val.trim()) return;
+
+                            createReply(replyBox, val);
+
+                            wrap.remove();
+
+                            saveEcho();
+
+                        };
+
+                    };
+
+                });
+
+            }
+
+        }
+
+
+
+        function loadLineComments() {
+
+            let saved = {};
+
+            try {
+                saved = JSON.parse(localStorage.getItem("lineComments")) || {};
+            } catch (e) {
+                saved = {};
+                localStorage.removeItem("lineComments");
+            }
+            lines.forEach((line, index) => {
+
+                if (saved[index]) {
+
+                    let box = document.createElement("div");
+                    box.className = "comment-box";
+
+                    box.innerHTML = `
+<textarea class="inputBox lineInput"
+placeholder="Viết bình luận cho dòng này..."></textarea>
+
+<button class="sendBtn">Gửi</button>
+
+<div class="comment-thread">${saved[index]}</div>
+`;
+
+                    line.after(box);
+
+                    const input = box.querySelector(".lineInput");
+                    const sendBtn = box.querySelector(".sendBtn");
+                    const list = box.querySelector(".comment-thread");
+
+                    sendBtn.onclick = () => {
+
+                        if (!input.value.trim()) return;
+
+                        createLineComment(list, input.value, index);
+
+                        input.value = "";
+
+                    };
+
+                    attachEvents(list, index);
+
+                }
+
+            });
+
+        }
+        loadEcho();
+        loadLineComments();
+        initLineComments();
+    </script>
+        <script src="../../../main_js/iframe.js"></script>
+
+</body>
+
+</html>

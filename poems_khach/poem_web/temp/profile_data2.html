@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+<meta charset="UTF-8">
+<title>Không gian thơ</title>
+
+<style>
+
+body{
+font-family:Georgia,serif;
+background:#f4f6fb;
+padding:50px;
+transition:0.4s;
+}
+
+.reader-mode{
+background:#111;
+color:#eee;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+}
+
+.title{
+font-size:32px;
+margin-bottom:20px;
+text-align:center;
+}
+
+.line{
+font-size:20px;
+margin:8px 0;
+cursor:pointer;
+transition:0.2s;
+}
+
+.line:hover{
+color:#4a6cff;
+}
+
+.comment-box{
+margin-left:20px;
+margin-bottom:10px;
+}
+
+.comment{
+background:#eef2ff;
+padding:5px 8px;
+border-radius:4px;
+margin:3px 0;
+font-size:14px;
+}
+
+.emotions{
+margin-top:30px;
+display:flex;
+gap:12px;
+flex-wrap:wrap;
+}
+
+.emotion{
+padding:6px 10px;
+border-radius:20px;
+background:#e9ecff;
+cursor:pointer;
+font-size:14px;
+}
+
+.emotion:hover{
+transform:scale(1.1);
+}
+
+.reader-btn{
+margin-top:20px;
+padding:8px 14px;
+cursor:pointer;
+}
+
+.echo{
+margin-top:40px;
+}
+
+.echo input{
+width:100%;
+padding:8px;
+}
+
+.echo-list{
+margin-top:10px;
+font-style:italic;
+color:#555;
+}
+
+.save-btn{
+margin-top:20px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="title">
+Mẹ Già
+</div>
+
+<div id="poem">
+
+<div class="line">Mẹ già tóc bạc như sương</div>
+<div class="line">Chiều chiều tựa cửa nhớ thương con hoài</div>
+<div class="line">Cơm nghèo khói bếp đơn côi</div>
+<div class="line">Con đi biền biệt cuối trời chưa về</div>
+
+</div>
+
+
+<button class="reader-btn" id="readerBtn">
+📖 Chế độ đọc thơ
+</button>
+
+
+<div class="emotions">
+
+<div class="emotion" data-type="bangkhuang">🌙 Bâng khuâng</div>
+<div class="emotion" data-type="buon">🌧 Buồn</div>
+<div class="emotion" data-type="yen">🍃 An yên</div>
+<div class="emotion" data-type="hung">🔥 Nhiệt huyết</div>
+<div class="emotion" data-type="truyen">✨ Truyền cảm hứng</div>
+
+</div>
+
+
+<div id="emotionResult"></div>
+
+
+<div class="echo">
+
+<h3>Dư âm bài thơ</h3>
+
+<input id="echoInput" placeholder="Một dòng cảm nhận...">
+
+<button id="sendEcho">Gửi</button>
+
+<div class="echo-list" id="echoList"></div>
+
+</div>
+
+
+<button class="save-btn" id="saveBtn">
+📚 Lưu vào sổ thơ
+</button>
+
+</div>
+
+
+
+<script>
+
+const poemID="poem1";
+
+/* ================= COMMENT THEO DÒNG ================= */
+
+document.querySelectorAll(".line").forEach((line,i)=>{
+
+line.addEventListener("click",()=>{
+
+let box=line.nextElementSibling;
+
+if(!box || !box.classList.contains("comment-box")){
+
+box=document.createElement("div");
+box.className="comment-box";
+
+const input=document.createElement("input");
+input.placeholder="Bình luận dòng này...";
+
+const list=document.createElement("div");
+
+input.addEventListener("keypress",(e)=>{
+
+if(e.key==="Enter"){
+
+const div=document.createElement("div");
+
+div.className="comment";
+
+div.innerText=input.value;
+
+list.appendChild(div);
+
+input.value="";
+
+}
+
+});
+
+box.appendChild(input);
+box.appendChild(list);
+
+line.after(box);
+
+}
+
+});
+
+});
+
+
+/* ================= EMOTION ================= */
+
+let emotions=
+JSON.parse(localStorage.getItem(poemID+"_emo"))||{};
+
+document.querySelectorAll(".emotion").forEach(btn=>{
+
+btn.onclick=()=>{
+
+const type=btn.dataset.type;
+
+emotions[type]=(emotions[type]||0)+1;
+
+localStorage.setItem(
+poemID+"_emo",
+JSON.stringify(emotions)
+);
+
+showEmotion();
+
+};
+
+});
+
+function showEmotion(){
+
+let html="<h4>Cảm xúc người đọc</h4>";
+
+for(let k in emotions){
+
+html+=k+" : "+emotions[k]+"<br>";
+
+}
+
+document.getElementById("emotionResult").innerHTML=html;
+
+}
+
+showEmotion();
+
+
+/* ================= READER MODE ================= */
+
+document.getElementById("readerBtn").onclick=()=>{
+
+document.body.classList.toggle("reader-mode");
+
+};
+
+
+/* ================= ECHO ================= */
+
+let echoes=
+JSON.parse(localStorage.getItem(poemID+"_echo"))||[];
+
+const echoList=document.getElementById("echoList");
+
+function renderEcho(){
+
+echoList.innerHTML="";
+
+echoes.forEach(e=>{
+
+const div=document.createElement("div");
+
+div.innerText="“"+e+"”";
+
+echoList.appendChild(div);
+
+});
+
+}
+
+renderEcho();
+
+document.getElementById("sendEcho").onclick=()=>{
+
+const input=document.getElementById("echoInput");
+
+if(!input.value) return;
+
+echoes.push(input.value);
+
+localStorage.setItem(
+poemID+"_echo",
+JSON.stringify(echoes)
+);
+
+input.value="";
+
+renderEcho();
+
+};
+
+
+/* ================= SAVE ================= */
+
+document.getElementById("saveBtn").onclick=()=>{
+
+let saved=
+JSON.parse(localStorage.getItem("saved_poems"))||[];
+
+if(!saved.includes(poemID)){
+
+saved.push(poemID);
+
+localStorage.setItem(
+"saved_poems",
+JSON.stringify(saved)
+);
+
+alert("Đã lưu vào sổ thơ 📚");
+
+}
+
+};
+
+</script>
+
+</body>
+
+</html>

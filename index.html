@@ -1,169 +1,190 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Nguyễn Bành</title>
+    <title>Nguyễn Bành</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-<!-- HEADER -->
+        <!-- HEADER -->
 
-<header>
-<div class="header-title">
-NGUYỄN BÀNH
-</div>
-</header>
-
-
-<!-- NAVBAR -->
-
-<nav class="nav-bar">
-
-<div class="nav-left">
-
-<div class="hello">
-<span class="label">Chào</span>
-<span id="usernameshow">bạn</span>
-</div>
-
-<ul class="menu">
-
-<li>
-<a href="#">TỰ ĐỘNG ▾</a>
-<ul class="submenu">
-<li><a href="scada.html" target="contentFrame">SCADA</a></li>
-<li><a href="hmi.html" target="contentFrame">HMI UNIFIED</a></li>
-<li><a href="bms.html" target="contentFrame">BMS</a></li>
-</ul>
-</li>
-
-<li>
-<a href="#">MẠCH & VI MẠCH ▾</a>
-<ul class="submenu">
-<li><a href="chip.html" target="contentFrame">CHIP</a></li>
-<li><a href="poems_khach/accept_poem.html" target="contentFrame">MẠCH</a></li>
-<li><a href="account/manager_user.html" target="contentFrame">PLB</a></li>
-</ul>
-</li>
-
-<li>
-<a href="#">THƠ ▾</a>
-<ul class="submenu">
-<li><a href="poems/tho-banh.html" target="contentFrame">THƠ CỦA BÀNH</a></li>
-<li><a href="poems_khach/danhsach.html" target="contentFrame">THƠ SƯU TẦM</a></li>
-</ul>
-</li>
-
-<li>
-<a href="#">ĐỒNG HÀNH ▾</a>
-<ul class="submenu">
-<li><a href="poems_khach/poem_web/upload-poem.html" target="contentFrame">TẢI THƠ</a></li>
-<li><a href="huongdan2.html" target="contentFrame">TẢI TÀI LIỆU</a></li>
-</ul>
-</li>
-
-</ul>
-
-</div>
+        <header>
+            <div class="header-title">
+                NGUYỄN BÀNH
+            </div>
+        </header>
 
 
-<div class="nav-right">
+        <!-- NAVBAR -->
 
-<!-- DARK MODE -->
+        <nav class="nav-bar">
 
-<div class="dark-btn" onclick="toggleDark()">
-<span id="darkIcon">☀️</span>
-</div>
+            <div class="nav-left">
 
-<!-- LOGIN -->
+                <div class="hello">
+                    <span class="label">Chào</span>
+                    <span id="usernameshow">bạn</span>
+                </div>
 
-<div class="login-icon">
-<a href="account/login_register.html" target="contentFrame" title="Đăng nhập">
-👤
-</a>
-</div>
+                <ul class="menu">
 
-</div>
+                    <li>
+                        <a href="#">TỰ ĐỘNG ▾</a>
+                        <ul class="submenu">
+                            <li><a href="scada.html" target="contentFrame">SCADA</a></li>
+                            <li><a href="hmi.html" target="contentFrame">HMI UNIFIED</a></li>
+                            <li><a href="bms.html" target="contentFrame">BMS</a></li>
+                        </ul>
+                    </li>
 
-</nav>
+                    <li>
+                        <a href="#">MẠCH & VI MẠCH ▾</a>
+                        <ul class="submenu">
+                            <li><a href="chip.html" target="contentFrame">CHIP</a></li>
+                            <li><a href="poems_khach/accept_poem.html" target="contentFrame">MẠCH</a></li>
+                            <li><a href="account/manager_user.html" target="contentFrame">PLB</a></li>
+                        </ul>
+                    </li>
 
+                    <li>
+                        <a href="#">THƠ ▾</a>
+                        <ul class="submenu">
+                            <li><a href="poems/tho-banh.html" target="contentFrame">THƠ CỦA BÀNH</a></li>
+                            <li><a href="poems_khach/danhsach.html" target="contentFrame">THƠ SƯU TẦM</a></li>
+                        </ul>
+                    </li>
 
-<!-- CONTENT -->
+                    <li>
+                        <a href="#">ĐỒNG HÀNH ▾</a>
+                        <ul class="submenu">
+                            <li><a href="poems_khach/poem_web/upload-poem.html" target="contentFrame">TẢI THƠ</a></li>
+                            <li><a href="poems_khach/poem_web/temp/tho_done_lib.html" target="contentFrame">TẢI TÀI LIỆU</a></li>
+                        </ul>
+                    </li>
 
-<main>
+                </ul>
 
-<iframe
-id="contentFrame"
-name="contentFrame"
-style="width:100%;border:none;min-height:600px;">
-</iframe>
-
-</main>
-
-
-<!-- FOOTER -->
-
-<footer>
-
-<div class="footer-container">
-
-<div class="footer-col">
-
-<h3>Về chúng tôi</h3>
-
-<ul>
-<li><a href="gioithieu.html" target="contentFrame">Giới thiệu</a></li>
-<li><a href="tacgia.html" target="contentFrame">Tác giả</a></li>
-</ul>
-
-</div>
-
-
-<div class="footer-col">
-
-<h3>Liên hệ</h3>
-
-<p>Email: thanhkietnguyen5@gmail.com</p>
-
-</div>
+            </div>
 
 
-<div class="footer-col">
+            <div class="nav-right">
 
-<h3>Theo dõi</h3>
+                <!-- DARK MODE -->
 
-<a href="https://www.facebook.com/banh.nguyen.35110418" class="social-btn fb">Facebook</a>
-<a href="#" class="social-btn tw">Twitter</a>
-<a href="#" class="social-btn ig">Instagram</a>
-<a href="#" class="social-btn li">LinkedIn</a>
-<a href="https://www.youtube.com/@thanhkietnguyen7333" class="social-btn yt">YouTube</a>
+                <div class="dark-btn" onclick="toggleDark()">
+                    <span id="darkIcon">☀️</span>
+                </div>
 
-</div>
+                <!-- USER ICON -->
 
-</div>
+                <div class="user-box">
 
-</footer>
+                    <a href="account/login_register.html" target="contentFrame" id="loginLink" title="Đăng nhập">
 
-</div>
+                        <div class="login-icon shake" id="loginIcon"></div>
+
+                    </a>
+
+                    <!-- MENU USER -->
+
+                    <div class="user-menu" id="userMenu">
+
+                        <a id="profileLink" target="contentFrame">
+                            Trang cá nhân
+                        </a>
+
+                        <a href="poems_khach/poem_web/upload-poem.html" target="contentFrame">
+                            Đăng thơ
+                        </a>
+
+                        <a href="#" id="logoutBtn">
+                            Đăng xuất
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </nav>
 
 
-<!-- AUTO RESIZE IFRAME -->
-<!-- MAIN JS -->
+        <!-- CONTENT -->
 
-<script src="main_js/main.js"></script>
-<script src="main_js/navigation.js"></script>
-<!-- FIREBASE AUTH -->
+        <main>
 
-<script type="module" src="main_js/auth.js"></script>
+            <iframe id="contentFrame" name="contentFrame" style="width:100%;border:none;min-height:600px;">
+            </iframe>
+
+        </main>
+
+
+        <!-- FOOTER -->
+
+        <footer>
+
+            <div class="footer-container">
+
+                <div class="footer-col">
+
+                    <h3>Về chúng tôi</h3>
+
+                    <ul>
+                        <li><a href="gioithieu.html" target="contentFrame">Giới thiệu</a></li>
+                        <li><a href="tacgia.html" target="contentFrame">Tác giả</a></li>
+                    </ul>
+
+                </div>
+
+
+                <div class="footer-col">
+
+                    <h3>Liên hệ</h3>
+
+                    <p>Email: thanhkietnguyen5@gmail.com</p>
+
+                </div>
+
+
+                <div class="footer-col">
+
+                    <h3>Theo dõi</h3>
+
+                    <a href="https://www.facebook.com/banh.nguyen.35110418" class="social-btn fb">Facebook</a>
+                    <a href="#" class="social-btn tw">Twitter</a>
+                    <a href="#" class="social-btn ig">Instagram</a>
+                    <a href="#" class="social-btn li">LinkedIn</a>
+                    <a href="https://www.youtube.com/@thanhkietnguyen7333" class="social-btn yt">YouTube</a>
+
+                </div>
+
+            </div>
+
+        </footer>
+
+    </div>
+
+
+    <!-- AUTO RESIZE IFRAME -->
+    <!-- MAIN JS -->
+
+    <script src="main_js/main.js"></script>
+    <script type="module" src="main_js/navigation.js"></script>
+    <!-- FIREBASE AUTH -->
+
+    <script type="module" src="main_js/auth.js"></script>
 
 </body>
+
 </html>
