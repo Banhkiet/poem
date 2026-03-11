@@ -24,6 +24,19 @@
             margin: auto;
         }
 
+        /* like heart */
+        @keyframes flyHeart {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-25px);
+                opacity: 0;
+            }
+        }
+
         /* ================= TITLE ================= */
 
         .title {
@@ -91,8 +104,16 @@
             background: #e6eaff;
         }
 
+        #toggleComment.active {
+            background: #ffd966;
+            color: #5a3d00;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            border: 1px solid #e6b800;
+            transform: translateY(-2px) scale(1.03);
+        }
+
         #superMode {
-            background: #ffe9c6;
+            background: #e6eaff;
             transition: 0.25s;
         }
 
@@ -177,7 +198,6 @@
         }
 
         /* ================= ECHO ================= */
-        /* ================= ECHO COMMENT ================= */
         .echo-text {
             white-space: pre-wrap;
         }
@@ -270,26 +290,12 @@
             font-size: 14px;
         }
 
-        .reaction-board {
-            background: #eef4ff;
-            padding: 14px;
-            border-radius: 12px;
-            width: 360px;
-            margin-top: 80px;
-        }
-
-        .reaction-title {
-            margin-top: 60px;
-            /* cách bài thơ xa ra */
-            margin-bottom: 8px;
-            /* gần bảng cảm xúc */
-        }
 
         .reaction-row {
             display: flex;
             align-items: center;
-            margin: 10px 0;
-            gap: 10px;
+            margin: 12px 0;
+            gap: 12px;
         }
 
         .emoji {
@@ -299,7 +305,7 @@
 
         .bar {
             flex: 1;
-            height: 6px;
+            height: 8px;
             background: #dde4f2;
             border-radius: 10px;
             overflow: hidden;
@@ -335,6 +341,28 @@
             padding: 8px;
             border-radius: 6px;
             margin: 8px 0;
+        }
+
+        /* các nút điều khiển  */
+        .control-bar {
+
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            margin-top: 16px;
+            flex-wrap: wrap;
+
+        }
+
+        .control-bar button {
+
+            background: #e6eaff;
+        }
+
+        .control-bar audio {
+
+            height: 36px;
         }
 
         /* CÁC NÚT NHẤN PHẢN HỒI GỬI */
@@ -386,7 +414,7 @@
 
         .super-mode .echo {
             background: #1a1d26;
-            padding: 14px;
+            padding: 20px;
             border-radius: 12px;
             margin-top: 20px;
         }
@@ -421,10 +449,62 @@
 
         .echo {
             margin-top: 30px;
-            padding: 16px;
+            padding: 20px;
             background: #ffffff;
             border-radius: 12px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            width: 100%;
+        }
+
+        /* ===== SUPER MODE CONTROL PANEL ===== */
+
+        .super-mode .poem-control {
+
+            background: #1a1d26;
+            color: #ddd;
+
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+
+        }
+
+        .super-mode .bar {
+            background: #3a3f4f;
+        }
+
+        .super-mode .fill {
+            background: #7c8cff;
+        }
+
+        .super-mode .emoji {
+            filter: brightness(1.2);
+        }
+
+
+        /* ===== CONTROL PANEL ===== */
+
+        .poem-control {
+            background: linear-gradient(135deg, #f6f8ff, #eef2ff);
+            padding: 4px 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            margin-top: 100px;
+
+            width: 100%;
+        }
+
+        /* title */
+
+        .control-title {
+
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+
+            margin-top: 12px;
+            margin-bottom: 12px;
+            color: #4c5cff;
+
         }
     </style>
 
@@ -446,9 +526,10 @@
             <div class="line">Con đi biền biệt cuối trời chưa về</div>
 
         </div>
-        <h3 class="reaction-title">Cảm xúc người đọc</h3>
-        <div class="reaction-board">
+        <div class="poem-control">
 
+
+            <h3 class="control-title">Cảm xúc người đọc</h3>
             <div class="reaction-row">
                 <div class="emoji reactBtn" data-type="sad">😢</div>
 
@@ -503,26 +584,26 @@
             </div>
 
 
+            <div id="reactionStats"></div>
+            <div class="super-bar">
 
 
-        </div>
 
-        <div id="reactionStats"></div>
-        <div class="super-bar">
-
-            <button id="superMode">
-                🌌 Đọc thơ siu cấp
-            </button>
-
-            <div id="musicControl">
-                <audio id="poemAudio" controls src="audio.mp3"></audio>
             </div>
+            <div class="control-bar">
 
+                <button id="toggleComment">
+                    💬 Bật comment theo dòng
+                </button>
+                <button id="superMode">
+                    🌌 Đọc thơ siu cấp
+                </button>
+
+                <div id="musicControl">
+                    <audio id="poemAudio" controls src="audio.mp3"></audio>
+                </div>
+            </div>
         </div>
-        <button id="toggleComment">
-            💬 Bật comment theo dòng
-        </button>
-
 
         <div class="echo">
             <button id="savePoem">📚 Lưu vào sổ thơ</button>
@@ -536,9 +617,6 @@
         </div>
 
     </div>
-
-    <audio id="poemAudio" src="audio.mp3"></audio>
-
     <script>
         let typeTimers = [];
         /* ================= USER ================= */
@@ -556,6 +634,7 @@
         /* bật tắt comment */
         toggleBtn.onclick = () => {
             commentMode = !commentMode;
+            toggleBtn.classList.toggle("active");   // dòng thêm
 
             toggleBtn.innerText = commentMode ? "💬 Tắt comment theo dòng" : "💬 Bật comment theo dòng";
 
@@ -677,7 +756,30 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
                 };
 
             });
+            /* LIKE */
 
+            list.querySelectorAll(".likeBtn").forEach(btn => {
+
+                let likes = parseInt(btn.innerText.replace("❤️", "")) || 0;
+
+                btn.onclick = () => {
+
+                    likes++;
+
+                    btn.innerText = "❤️ " + likes;
+
+                    const heart = document.createElement("div");
+                    heart.innerText = "❤️";
+                    heart.style.position = "absolute";
+                    heart.style.animation = "flyHeart 1s ease forwards";
+
+                    btn.appendChild(heart);
+
+                    saveLineThread(index, list);   // ✅ đúng
+
+                };
+
+            });
             list.querySelectorAll(".replyBtn").forEach(btn => {
 
                 btn.onclick = () => {
@@ -943,7 +1045,27 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
         const echoInput = document.getElementById("echoInput");
         const echoList = document.getElementById("echoList");
 
-        document.getElementById("sendEcho").onclick = () => {
+        const sendEchoBtn = document.getElementById("sendEcho");
+
+        /* gửi bằng nút */
+
+        sendEchoBtn.onclick = sendEchoComment;
+
+        /* gửi bằng Ctrl + Enter */
+
+        echoInput.addEventListener("keydown", e => {
+
+            if (e.ctrlKey && e.key === "Enter") {
+
+                e.preventDefault();
+
+                sendEchoComment();
+
+            }
+
+        });
+
+        function sendEchoComment() {
 
             if (!echoInput.value.trim()) return;
 
@@ -953,7 +1075,7 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
 
             saveEcho();
 
-        };
+        }
 
         function createComment(user, text, save = true) {
 
@@ -979,12 +1101,23 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
 
             /* like */
 
+            /* like */
+
+            const likeBtn = div.querySelector(".likeBtn");
             let likes = 0;
 
-            div.querySelector(".likeBtn").onclick = () => {
+            likeBtn.onclick = () => {
 
                 likes++;
-                div.querySelector(".likeBtn").innerText = "❤️ " + likes;
+
+                likeBtn.innerText = "❤️ " + likes;
+
+                const heart = document.createElement("div");
+                heart.innerText = "❤️";
+                heart.style.position = "absolute";
+                heart.style.animation = "flyHeart 1s ease forwards";
+
+                likeBtn.appendChild(heart);
 
                 saveEcho();
 
@@ -1025,6 +1158,25 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
                 replyBox.appendChild(wrap);
 
                 const input = wrap.querySelector("textarea");
+
+                input.addEventListener("keydown", e => {
+
+                    if (e.ctrlKey && e.key === "Enter") {
+
+                        e.preventDefault();
+
+                        if (!input.value.trim()) return;
+
+                        createReply(replyBox, input.value);
+
+                        wrap.remove();
+
+                        saveEcho();
+
+                    }
+
+                });
+
                 wrap.querySelector(".sendBtn").onclick = () => {
 
                     if (!input.value.trim()) return;
@@ -1068,12 +1220,21 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
 
             /* like */
 
+            const likeBtn = div.querySelector(".likeBtn");
             let likes = 0;
 
-            div.querySelector(".likeBtn").onclick = () => {
+            likeBtn.onclick = () => {
 
                 likes++;
-                div.querySelector(".likeBtn").innerText = "❤️ " + likes;
+
+                likeBtn.innerText = "❤️ " + likes;
+
+                const heart = document.createElement("div");
+                heart.innerText = "❤️";
+                heart.style.position = "absolute";
+                heart.style.animation = "flyHeart 1s ease forwards";
+
+                likeBtn.appendChild(heart);
 
                 saveLineThread(lineIndex, list);
 
@@ -1162,7 +1323,26 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
 `;
 
                 replyBox.appendChild(wrap);
+                const input = wrap.querySelector("textarea");
 
+                input.addEventListener("keydown", e => {
+
+                    if (e.ctrlKey && e.key === "Enter") {
+
+                        e.preventDefault();
+
+                        const val = input.value;
+                        if (!val.trim()) return;
+
+                        createReply(replyBox, val);
+
+                        wrap.remove();
+
+                        saveEcho();
+
+                    }
+
+                });
                 wrap.querySelector(".sendBtn").onclick = () => {
 
                     const val = wrap.querySelector("textarea").value;
@@ -1238,7 +1418,30 @@ placeholder="Viết bình luận cho dòng này... (Ctrl + Enter để gửi)"><
                     };
 
                 });
+                /* LIKE */
 
+                echoList.querySelectorAll(".likeBtn").forEach(btn => {
+
+                    let likes = parseInt(btn.innerText.replace("❤️", "")) || 0;
+
+                    btn.onclick = () => {
+
+                        likes++;
+
+                        btn.innerText = "❤️ " + likes;
+
+                        const heart = document.createElement("div");
+                        heart.innerText = "❤️";
+                        heart.style.position = "absolute";
+                        heart.style.animation = "flyHeart 1s ease forwards";
+
+                        btn.appendChild(heart);
+
+                        saveEcho();
+
+                    };
+
+                });
                 /* REPLY */
 
                 echoList.querySelectorAll(".replyBtn").forEach(btn => {
@@ -1335,7 +1538,17 @@ placeholder="Viết bình luận cho dòng này..."></textarea>
         loadEcho();
         loadLineComments();
         initLineComments();
+        /* mặc định tắt comment theo dòng */
+
+        document.querySelectorAll(".comment-box").forEach(box => {
+            box.style.display = "none";
+        });
+
+        toggleBtn.classList.remove("active");
+        toggleBtn.innerText = "💬 Bật comment theo dòng";
     </script>
+    <script src="../../../main_js/iframe.js"></script>
+
 </body>
 
 </html>

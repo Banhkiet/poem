@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const username = user.username;
 
-                profileLink.href = "account/profile.html?username=" + username;
+                profileLink.href = "account/personal_profile.html?username=" + username;
 
             }
         });

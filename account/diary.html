@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nhật ký thơ</title>
+
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: linear-gradient(135deg, #f6f8ff, #eef2ff);
+            margin: 0;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        /* poem card */
+
+        .poem {
+            background: white;
+            border-radius: 14px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: 0.25s;
+            cursor: pointer;
+        }
+
+        .poem:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .poem h4 {
+            margin: 0 0 8px 0;
+            color: #2c3e50;
+        }
+
+        .poem p {
+            margin: 0;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .date {
+            font-size: 13px;
+            color: #999;
+            margin-top: 6px;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            margin-top: 50px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h2>📔 Nhật ký thơ của bạn</h2>
+
+        <div id="poems"></div>
+
+        <div id="empty" class="empty" style="display:none">
+            Bạn chưa lưu bài thơ nào.
+        </div>
+
+    </div>
+
+
+    <script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            getDocs,
+            doc,
+            getDoc
+        }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+            authDomain: "banhkietgithunbpoem.firebaseapp.com",
+            projectId: "banhkietgithunbpoem",
+            storageBucket: "banhkietgithunbpoem.firebasestorage.app",
+            messagingSenderId: "429631951698",
+            appId: "1:429631951698:web:8c5f6854de3ad22113a08b"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+
+        /* kiểm tra đăng nhập */
+
+        onAuthStateChanged(auth, async (user) => {
+
+            if (!user) {
+
+                document.getElementById("empty").innerText =
+                    "Bạn cần đăng nhập để xem nhật ký thơ.";
+
+                document.getElementById("empty").style.display = "block";
+
+                return;
+
+            }
+
+            loadDiary(user.uid);
+
+        });
+
+
+        /* load nhật ký thơ */
+
+        async function loadDiary(uid) {
+
+            const q = query(
+                collection(db, "saved_poems"),
+                where("uid", "==", uid)
+            );
+
+            const snap = await getDocs(q);
+
+            const poemsDiv = document.getElementById("poems");
+
+            if (snap.empty) {
+
+                document.getElementById("empty").style.display = "block";
+                return;
+
+            }
+
+            snap.forEach(async (d) => {
+
+                const data = d.data();
+
+                const poemRef = doc(db, "uploads", data.poemId);
+
+                const poemSnap = await getDoc(poemRef);
+
+                if (!poemSnap.exists()) return;
+
+                const poem = poemSnap.data();
+
+                const div = document.createElement("div");
+
+                div.className = "poem";
+
+                div.onclick = function () {
+
+                    window.location = "poem.html?id=" + data.poemId;
+
+                };
+
+                div.innerHTML = `
+
+<h4>${poem.title}</h4>
+
+<p>${poem.content.substring(0, 180)}...</p>
+
+<div class="date">
+📅 ${new Date(poem.created).toLocaleDateString("vi-VN")}
+</div>
+
+`;
+
+                poemsDiv.appendChild(div);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

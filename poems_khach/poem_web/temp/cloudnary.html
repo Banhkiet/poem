@@ -1,66 +1,20 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Upload Cloudinary</title>
-</head>
+  .poem-control {
+            background: linear-gradient(135deg, #f6f8ff, #eef2ff);
+            padding: 20px 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            margin-top: 100px;
 
-<body>
+            width: 100%;
+        }
 
-<h3>Upload ảnh</h3>
 
-<input type="file" id="file">
-<button onclick="upload()">Upload</button>
-
-<p id="msg"></p>
-
-<script>
-
-async function upload(){
-
-const file=document.getElementById("file").files[0];
-const msg=document.getElementById("msg");
-
-if(!file){
-msg.innerText="Chưa chọn file";
-return;
-}
-
-msg.innerText="Đang upload...";
-
-const url=await uploadFile(file);
-
-msg.innerText="Upload thành công!";
-console.log(url);
-
-}
-
-async function uploadFile(file){
-
-if(!file) return "";
-
-const url="https://api.cloudinary.com/v1_1/dp6rc7ghq/auto/upload";
-
-const formData=new FormData();
-
-formData.append("file",file);
-formData.append("upload_preset","uploadfilepoem");
-
-/* folder muốn tạo */
-
-formData.append("folder","NGUYEN");
-
-const res=await fetch(url,{
-method:"POST",
-body:formData
-});
-
-const data=await res.json();
-
-return data.secure_url;
-
-}
-
-</script>
-</body>
-</html>
+ .echo {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            width: 100%;
+        }
