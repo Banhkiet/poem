@@ -150,7 +150,7 @@
 
         .super-mode .line {
             color: white;
-            opacity: 0;
+
         }
 
         .super-mode .title {
@@ -189,6 +189,8 @@
             animation: fly 6s linear infinite;
             box-shadow: 0 0 8px #ffe66d, 0 0 14px #ffe66d;
             animation: fly 4s linear infinite, blink 1.2s infinite;
+            position: fixed;
+            pointer-events: none;
         }
 
         @keyframes blink {
@@ -204,13 +206,27 @@
         }
 
         @keyframes fly {
+
             0% {
-                transform: translateY(0)
+                transform: translate(0, 0)
+            }
+
+            25% {
+                transform: translate(40px, -120px)
+            }
+
+            50% {
+                transform: translate(-30px, -260px)
+            }
+
+            75% {
+                transform: translate(20px, -400px)
             }
 
             100% {
-                transform: translateY(-900px)
+                transform: translate(-10px, -600px)
             }
+
         }
 
         /* ================= ECHO ================= */
@@ -525,6 +541,7 @@
         #musicControl {
             display: none;
         }
+        
     </style>
 
 </head>
@@ -1219,57 +1236,83 @@ ${data.username}
 `;
 
         }
-        function stopAnimation() {
 
-            typeTimers.forEach(t => clearTimeout(t));
 
-            typeTimers = [];
+        let typeTimers = [];
+        let fireflies = [];
 
-        }
+
         /* cahyj chư */
-        function animatePoem() {
+function animatePoem() {
 
-            let delay = 0;
+    let delay = 0;
 
-            /* reset timer */
+    stopAnimation();
 
+    lines.forEach(line => {
 
-            lines.forEach(line => {
-
-                if (!line.dataset.original) {
-                    line.dataset.original = line.innerText;
-                }
-
-                const text = line.dataset.original;
-                line.style.opacity = 1;
-
-                /* ẨN CHỮ TRƯỚC */
-                line.innerHTML = "";
-
-                [...text].forEach((char, i) => {
-
-                    const timer = setTimeout(() => {
-
-                        if (!document.body.classList.contains("super-mode")) return;
-
-                        const span = document.createElement("span");
-
-                        span.innerHTML = char === " " ? "&nbsp;" : char;
-
-                        line.appendChild(span);
-
-                    }, delay + 45 * i);
-
-                    typeTimers.push(timer);
-
-                });
-
-                /* dòng sau chạy khi dòng trước xong */
-                delay += text.length * 45 + 350;
-
-            });
-
+        if (!line.dataset.original) {
+            line.dataset.original = line.innerText;
         }
+
+        const text = line.dataset.original;
+
+        line.innerHTML = "";
+
+        [...text].forEach(char => {
+
+            const timer = setTimeout(() => {
+
+                if (!document.body.classList.contains("super-mode")) return;
+
+                const span = document.createElement("span");
+
+                span.innerHTML = char === " " ? "&nbsp;" : char;
+
+                span.style.display = "inline-block";
+                span.style.opacity = "0";
+
+                line.appendChild(span);
+
+                /* chọn hướng bay ngẫu nhiên */
+                const dx = (Math.random() - 0.5) * 300;
+                const dy = (Math.random() - 0.5) * 200;
+                const rot = (Math.random() - 0.5) * 180;
+
+                span.animate(
+                    [
+                        {
+                            transform: `translate(${dx}px,${dy}px) rotate(${rot}deg) scale(0.4)`,
+                            opacity: 0
+                        },
+                        {
+                            transform: `translate(${dx*0.2}px,${dy*0.2}px) rotate(${rot*0.2}deg) scale(1.1)`,
+                            opacity: 1
+                        },
+                        {
+                            transform: `translate(0px,0px) rotate(0deg) scale(1)`
+                        }
+                    ],
+                    {
+                        duration: 700,
+                        easing: "cubic-bezier(.2,.8,.2,1)",
+                        fill: "forwards"
+                    }
+                );
+
+            }, delay);
+
+            typeTimers.push(timer);
+
+            delay += 90;
+
+        });
+
+        delay += 350;
+
+    });
+
+}
         function resetPoem() {
 
             stopAnimation();
@@ -1297,6 +1340,8 @@ ${data.username}
 
                 f.style.left = Math.random() * 100 + "%";
                 f.style.bottom = Math.random() * 100 + "px";
+                /* phủ toàn màn hình */
+                f.style.top = Math.random() * 100 + "vh";
                 f.style.animationDuration = (2 + Math.random() * 4) + "s";
 
                 document.body.appendChild(f);
@@ -1311,6 +1356,13 @@ ${data.username}
             fireflies.forEach(f => f.remove());
 
             fireflies = [];
+
+        }
+        function stopAnimation() {
+
+            typeTimers.forEach(t => clearTimeout(t));
+
+            typeTimers = [];
 
         }
         console.log("poemID:", poemID);

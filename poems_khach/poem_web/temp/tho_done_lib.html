@@ -17,6 +17,11 @@
             color: #222;
         }
 
+        .line.active {
+            color: #ffeaa7;
+            text-shadow: 0 0 8px #ffd54f;
+        }
+
         /* ================= CONTAINER ================= */
 
         .container {
@@ -79,6 +84,8 @@
             margin-left: 6px;
         }
 
+
+
         .username {
             color: #2f4cff;
             cursor: pointer;
@@ -92,15 +99,7 @@
 
         /* ================= BUTTONS ================= */
 
-        button {
-            padding: 8px 14px;
-            margin: 6px 6px 0 0;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
+        
         #toggleComment {
             background: #e6eaff;
         }
@@ -150,7 +149,7 @@
 
         .super-mode .line {
             color: white;
-     
+
         }
 
         .super-mode .title {
@@ -189,6 +188,8 @@
             animation: fly 6s linear infinite;
             box-shadow: 0 0 8px #ffe66d, 0 0 14px #ffe66d;
             animation: fly 4s linear infinite, blink 1.2s infinite;
+            position: fixed;
+            pointer-events: none;
         }
 
         @keyframes blink {
@@ -204,13 +205,27 @@
         }
 
         @keyframes fly {
+
             0% {
-                transform: translateY(0)
+                transform: translate(0, 0)
+            }
+
+            25% {
+                transform: translate(40px, -120px)
+            }
+
+            50% {
+                transform: translate(-30px, -260px)
+            }
+
+            75% {
+                transform: translate(20px, -400px)
             }
 
             100% {
-                transform: translateY(-900px)
+                transform: translate(-10px, -600px)
             }
+
         }
 
         /* ================= ECHO ================= */
@@ -262,13 +277,6 @@
         }
 
         /* ================= POEM ================= */
-        .line {
-            font-size: 22px;
-            margin: 10px 0;
-            cursor: pointer;
-            line-height: 1.6;
-        }
-
         /* Thêm hover cho các ký tự trong dòng khi bật comment */
         .line span {
             transition: color 0.3s ease;
@@ -525,12 +533,33 @@
         #musicControl {
             display: none;
         }
+
+        .replyList {
+            margin-left: 25px;
+            border-left: 2px solid #eee;
+            padding-left: 10px;
+        }
+
+        .cmt-count {
+            color: #888;
+            font-size: 0.9em;
+            margin-left: 8px;
+        }
+
+        .line.hot-line {
+            background: rgba(255, 180, 0, 0.15);
+            border-left: 4px solid orange;
+            padding-left: 6px;
+        }
+
+        .super-mode .line-heart {
+            display: none;
+        }
     </style>
 
 </head>
 
 <body>
-    <div id="commentList"></div>
     <div class="container">
 
         <div class="title">
@@ -634,9 +663,7 @@
             <div id="echoList"></div>
 
         </div>
-
     </div>
-
     <script type="module">
         /* import firebase*/
         import { initializeApp }
@@ -646,15 +673,17 @@
             getFirestore,
             doc,
             getDoc,
+            setDoc,
             collection,
             addDoc,
-            deleteDoc,
             query,
             orderBy,
             onSnapshot,
-
             updateDoc,
-            increment
+            increment,
+            where,
+            getDocs,
+            deleteDoc
         }
             from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
 
@@ -682,7 +711,73 @@
         let currentUser = null;
 
         let poemID = new URLSearchParams(location.search).get("id");
+        const reactBtns = document.querySelectorAll(".reactBtn");
 
+        async function deleteCommentTree(commentId) {
+
+    const q = query(
+        collection(db, "super_poem", poemID, "comment"),
+        where("parent", "==", commentId)
+    );
+
+    const snap = await getDocs(q);
+
+    for (const d of snap.docs) {
+
+        await deleteCommentTree(d.id);
+
+    }
+
+    await deleteDoc(
+        doc(db, "super_poem", poemID, "comment", commentId)
+    );
+
+}
+        reactBtns.forEach(btn => {
+
+            btn.onclick = async () => {
+
+                if (!currentUser) {
+                    alert("Bạn cần đăng nhập");
+                    return;
+                }
+
+                const type = btn.dataset.type;
+
+                const ref = doc(db, "super_poem", poemID, "reactions", currentUser.uid);
+
+                const snap = await getDoc(ref);
+
+                let list = [];
+
+                if (snap.exists()) {
+                    list = snap.data().reactions || [];
+                }
+
+                /* nếu đã chọn thì bỏ */
+                if (list.includes(type)) {
+
+                    list = list.filter(e => e !== type);
+
+                } else {
+
+                    if (list.length >= 3) {
+                        alert("Bạn chỉ được chọn tối đa 3 cảm xúc");
+                        return;
+                    }
+
+                    list.push(type);
+
+                }
+
+                await setDoc(ref, {
+                    username: username,
+                    reactions: list
+                }, { merge: true });
+
+            };
+
+        });
         if (!poemID) {
 
             const title = document.querySelector(".title").innerText;
@@ -703,7 +798,11 @@
 
         }
         const echoList = document.getElementById("echoList");
-
+        const loadingBox = document.createElement("div");
+        loadingBox.id = "loadingComment";
+        loadingBox.innerText = "Web lỏ, load lâu, đợi tí...";
+        loadingBox.style.fontStyle = "italic";
+        loadingBox.style.margin = "10px 0";
 
         /*Realtime comment Firebase*/
 
@@ -712,221 +811,13 @@
             orderBy("created", "asc")
         );
 
-        onSnapshot(q, (snapshot) => {
-
-            echoList.innerHTML = "";
-
-            snapshot.forEach(docSnap => {
-
-                const data = docSnap.data();
-                const id = docSnap.id;
-
-                if (data.parent) {
-                    renderReply(data, id);
-                }
-                else if (data.lineIndex === undefined) {
-                    renderEcho(data, id);
-                }
-
-            });
-
-        });
 
 
 
 
         /* Hiển thị dư âm */
-        function renderEcho(data, id) {
-
-            const div = document.createElement("div");
-            div.className = "echo-comment";
-            div.dataset.id = id;
-
-            div.innerHTML = commentHTML(data);
-
-            echoList.appendChild(div);
-
-            /* delete */
-
-            div.querySelector(".deleteBtn").onclick = async () => {
-
-                if (username !== data.username && username !== "admin") return;
-
-                if (!confirm("Bạn chắc chắn muốn xóa bình luận này?")) return;
-
-                await deleteDoc(doc(db, "super_poem", poemID, "comment", id));
-
-            };
-
-            div.querySelector(".replyBtn").onclick = () => {
-
-                const boxReply = document.createElement("div");
-
-                boxReply.innerHTML = `
-<textarea class="inputBox" placeholder="Viết phản hồi..."></textarea>
-<button class="sendBtn">Gửi</button>
-`;
-
-                div.appendChild(boxReply);
-
-                const textarea = boxReply.querySelector("textarea");
-                const btn = boxReply.querySelector("button");
-
-                btn.onclick = send;
-
-                textarea.addEventListener("keydown", e => {
-                    if (e.ctrlKey && e.key === "Enter") send();
-                });
-
-                async function send() {
-
-                    const text = textarea.value.trim();
-                    if (!text) return;
-
-                    await createReply(text, id, data.lineIndex);
-
-                    boxReply.remove();
-
-                }
-
-            };
-            const likeBtn = div.querySelector(".likeBtn");
-
-            likeBtn.onclick = async () => {
-
-                const ref = doc(db, "super_poem", poemID, "comment", id);
-
-                await updateDoc(ref, {
-                    hearts: increment(1)
-                });
-
-            };
-        };
-
+ 
         /*Hiển thị cmt theo dòng */
-        function renderLineComment(data, id) {
-
-            const lines = document.querySelectorAll(".line");
-            const line = lines[data.lineIndex];
-
-            if (!line) return;
-
-            let box = line.nextElementSibling;
-
-            if (!box || !box.classList.contains("comment-box")) {
-                box = document.createElement("div");
-                box.className = "comment-box";
-                line.after(box);
-            }
-
-            const div = document.createElement("div");   // tạo trước
-            div.className = "comment";
-            div.dataset.id = id;
-
-            div.innerHTML = commentHTML(data);
-
-            box.appendChild(div);
-
-            /* reply */
-            div.querySelector(".replyBtn").onclick = () => {
-
-                const boxReply = document.createElement("div");
-
-                boxReply.innerHTML = `
-<textarea class="inputBox" placeholder="Viết phản hồi..."></textarea>
-<button class="sendBtn">Gửi</button>
-`;
-
-                div.appendChild(boxReply);
-
-                const textarea = boxReply.querySelector("textarea");
-                const btn = boxReply.querySelector("button");
-
-                btn.onclick = send;
-
-                textarea.addEventListener("keydown", e => {
-                    if (e.ctrlKey && e.key === "Enter") send();
-                });
-
-                async function send() {
-                    const text = textarea.value.trim();
-                    if (!text) return;
-
-                    await createReply(text, id, null);
-                    boxReply.remove();
-                }
-
-            };
-
-            const likeBtn = div.querySelector(".likeBtn");
-
-            likeBtn.onclick = async () => {
-
-                const ref = doc(db, "super_poem", poemID, "comment", id);
-
-                await updateDoc(ref, {
-                    hearts: increment(1)
-                });
-
-            };
-
-
-            div.querySelector(".deleteBtn").onclick = async () => {
-
-                if (username !== data.username && username !== "admin") return;
-
-                if (!confirm("Bạn chắc chắn muốn xóa bình luận này?")) return;
-
-                await deleteDoc(doc(db, "super_poem", poemID, "comment", id));
-
-            };
-
-        }
-        function renderReply(data, id) {
-            const parent = document.querySelector(`[data-id="${data.parent}"]`);
-            if (!parent) return;
-
-            let replyBox = parent.querySelector(".replyList");
-
-            if (!replyBox) {
-                replyBox = document.createElement("div");
-                replyBox.className = "replyList";
-                parent.appendChild(replyBox);
-            }
-
-
-            const div = document.createElement("div");
-            div.className = "reply";
-            div.dataset.id = id;
-
-            div.innerHTML = commentHTML(data);
-
-            replyBox.appendChild(div);
-
-            /* delete */
-
-            div.querySelector(".deleteBtn").onclick = async () => {
-
-                if (username !== data.username && username !== "admin") return;
-                if (!confirm("Bạn chắc chắn muốn xóa phản hồi này?")) return;
-                await deleteDoc(doc(db, "super_poem", poemID, "comment", id));
-
-
-
-            };
-
-            const likeBtn = div.querySelector(".likeBtn");
-
-            likeBtn.onclick = async () => {
-
-                const ref = doc(db, "super_poem", poemID, "comment", id);
-
-                await updateDoc(ref, {
-                    hearts: increment(1)
-                });
-
-            };
-        }
         /* Reply cmt */
         async function createReply(text, parent, lineIndex = null) {
             if (username === "Khách") {
@@ -936,10 +827,11 @@
             await addDoc(
                 collection(db, "super_poem", poemID, "comment"),
                 {
+                    uid: currentUser.uid,
                     username: username,
-                    text: text,
-                    parent: parent,
+                    parent: parent,          // ⚠️ THIẾU CÁI NÀY
                     lineIndex: lineIndex,
+                    text: text,
                     created: Date.now(),
                     hearts: 0
                 }
@@ -953,7 +845,6 @@
         const musicControl = document.getElementById("musicControl");
 
         superBtn.onclick = () => {
-
             const active = document.body.classList.toggle("super-mode");
 
             if (active) {
@@ -985,8 +876,7 @@
                 audio.pause();
 
                 document.querySelectorAll(".firefly").forEach(f => f.remove());
-
-                restorePoem();
+                resetPoem();
                 removeFireflies();
 
             }
@@ -1049,6 +939,7 @@
             await addDoc(
                 collection(db, "super_poem", poemID, "comment"),
                 {
+                    uid: currentUser.uid,
                     username: username,
                     text: text,
                     created: Date.now(),
@@ -1102,41 +993,59 @@
 
                 let box = line.nextElementSibling;
 
-                if (!box || !box.classList.contains("comment-box")) {
+                /* toggle đóng */
 
-                    box = document.createElement("div");
-                    box.className = "comment-box";
-                    box.innerHTML = `
+                if (box && box.classList.contains("comment-box")) {
 
-<textarea class="inputBox" placeholder="Viết bình luận dòng này... (Ctrl+Enter để gửi)"></textarea>
+                    if (lineListeners[index]) {
+                        lineListeners[index]();
+                        delete lineListeners[index];
+                    }
+
+                    box.remove();
+                    return;
+                }
+
+                /* tạo box */
+
+                box = document.createElement("div");
+                box.className = "comment-box";
+
+                box.innerHTML = `
+
+<div class="line-comments"></div>
+
+<textarea class="inputBox"
+placeholder="Viết bình luận của bạn cho dòng này ❤️ "></textarea>
+
 <button class="sendBtn">Gửi</button>
-
 `;
 
-                    line.after(box);
+                line.after(box);
 
-                    const textarea = box.querySelector("textarea");
-                    const btn = box.querySelector("button");
+                const list = box.querySelector(".line-comments");
 
-                    /* gửi */
+                /* load comment của dòng này */
 
-                    btn.onclick = send;
+                loadLineComments(index, list);
 
-                    textarea.addEventListener("keydown", e => {
-                        if (e.ctrlKey && e.key === "Enter") send();
-                    });
+                const textarea = box.querySelector("textarea");
+                const btn = box.querySelector("button");
 
-                    async function send() {
+                btn.onclick = send;
 
-                        const text = textarea.value.trim();
+                textarea.addEventListener("keydown", e => {
+                    if (e.ctrlKey && e.key === "Enter") send();
+                });
 
-                        if (!text) return;
+                async function send() {
 
-                        await createLineComment(text, index);
+                    const text = textarea.value.trim();
+                    if (!text) return;
 
-                        textarea.value = "";
+                    await createLineComment(text, index);
 
-                    }
+                    textarea.value = "";
 
                 }
 
@@ -1154,51 +1063,40 @@
             await addDoc(
                 collection(db, "super_poem", poemID, "comment"),
                 {
+                    uid: currentUser.uid,
                     username: username,
                     text: text,
                     lineIndex: lineIndex,
+
                     created: Date.now(),
                     hearts: 0
                 }
             );
 
-        }
+        } /* loading */
+
         /* load cmt */
-        function loadComments() {
-            unsubscribeComments = onSnapshot(q, (snapshot) => {
 
-                document.querySelectorAll(".comment-box").forEach(e => e.remove());
-
-                const comments = [];
-
-                snapshot.forEach(docSnap => {
-                    comments.push({
-                        id: docSnap.id,
-                        ...docSnap.data()
-                    });
-                });
-
-                /* render parent trước */
-
-                comments
-                    .filter(c => !c.parent)
-                    .forEach(c => {
-                        if (c.lineIndex !== undefined) {
-                            renderLineComment(c, c.id);
-                        }
-                    });
-
-                /* render reply sau */
-
-                comments
-                    .filter(c => c.parent)
-                    .forEach(c => {
-                        renderReply(c, c.id);
-                    });
-
-            });
-        }
         function commentHTML(data) {
+
+            if (data.deleted) {
+
+                return `
+<div>
+<a href="profile_cmt.html?username=${data.username}" class="username">
+${data.username}
+</a>
+<small>đã xóa bình luận này</small>
+</div>
+
+<div style="font-style:italic;color:#888;">
+[comment đã bị xóa]
+</div>
+
+<div class="replyList"></div>
+`;
+
+            }
 
             return `
 <div>
@@ -1217,8 +1115,9 @@ ${data.username}
 
 <div class="replyList"></div>
 `;
-
         }
+
+
 
 
         let typeTimers = [];
@@ -1226,59 +1125,85 @@ ${data.username}
 
 
         /* cahyj chư */
-       function animatePoem() {
+        function animatePoem() {
 
-    let delay = 0;
+            let delay = 0;
 
-    /* reset timer */
-    stopAnimation();
+            stopAnimation();
 
-    lines.forEach(line => {
+            lines.forEach(line => {
 
-        if (!line.dataset.original) {
-            line.dataset.original = line.innerText;
+                if (!line.dataset.original) {
+                    line.dataset.original = line.innerText;
+                }
+
+                const text = line.dataset.original;
+
+                line.innerHTML = "";
+
+                [...text].forEach(char => {
+
+                    const timer = setTimeout(() => {
+
+                        if (!document.body.classList.contains("super-mode")) return;
+
+                        const span = document.createElement("span");
+
+                        span.innerHTML = char === " " ? "&nbsp;" : char;
+
+                        span.style.display = "inline-block";
+                        span.style.opacity = "0";
+
+                        line.appendChild(span);
+                        /* chọn hướng bay ngẫu nhiên */
+                        const dx = (Math.random() - 0.5) * 300;
+                        const dy = (Math.random() - 0.5) * 200;
+                        const rot = (Math.random() - 0.5) * 180;
+
+                        span.animate(
+                            [
+                                { transform: `translate(${dx}px,${dy}px) rotate(${rot}deg) scale(0.4)`, opacity: 0 },
+
+                                { transform: `translate(${dx * 0.2}px,${dy * 0.2}px) rotate(${rot * 0.2}deg) scale(1.1)`, opacity: 1 },
+
+                                { transform: "translate(0px,0px) rotate(0deg) scale(1.05)" },
+
+                                { transform: "translate(0px,0px) rotate(0deg) scale(1)" }
+
+                            ],
+                            {
+                                duration: 700,
+                                easing: "cubic-bezier(.22,1,.36,1)",
+                                fill: "forwards"
+                            }
+                        );
+
+                    }, delay);
+
+                    typeTimers.push(timer);
+
+                    delay += 90;
+
+                });
+
+                delay += 350;
+
+            });
+
         }
-
-        const text = line.dataset.original;
-
-        line.innerHTML = "";
-
-        [...text].forEach((char, i) => {
-
-            const timer = setTimeout(() => {
-
-                if (!document.body.classList.contains("super-mode")) return;
-
-                const span = document.createElement("span");
-
-                span.innerHTML = char === " " ? "&nbsp;" : char;
-
-                line.appendChild(span);
-
-            }, delay + 100 * i);
-
-            typeTimers.push(timer);
-
-        });
-
-        delay += text.length * 100 + 350;
-
-    });
-
-}
         function resetPoem() {
 
-    stopAnimation();
+            stopAnimation();
 
-    lines.forEach(line => {
+            lines.forEach(line => {
 
-        if (line.dataset.original) {
-            line.innerText = line.dataset.original;
+                if (line.dataset.original) {
+                    line.innerText = line.dataset.original;
+                }
+
+            });
+
         }
-
-    });
-
-}
 
         /* dom dom*/
         function createFireflies() {
@@ -1293,6 +1218,8 @@ ${data.username}
 
                 f.style.left = Math.random() * 100 + "%";
                 f.style.bottom = Math.random() * 100 + "px";
+                /* phủ toàn màn hình */
+                f.style.top = Math.random() * 100 + "vh";
                 f.style.animationDuration = (2 + Math.random() * 4) + "s";
 
                 document.body.appendChild(f);
@@ -1309,14 +1236,428 @@ ${data.username}
             fireflies = [];
 
         }
-                function stopAnimation() {
+        function stopAnimation() {
 
-    typeTimers.forEach(t => clearTimeout(t));
+            typeTimers.forEach(t => clearTimeout(t));
 
-    typeTimers = [];
+            typeTimers = [];
 
-}
+        }
+        /*thanh cảm xúc  */
+        function updateReactionUI(stats) {
+
+            const total =
+                stats.sad.length +
+                stats.happy.length +
+                stats.romantic.length +
+                stats.fire.length +
+                stats.cool.length;
+
+            ["sad", "happy", "romantic", "fire", "cool"].forEach(type => {
+
+                const bar = document.getElementById("bar-" + type);
+                const avatarBox = document.getElementById("avatar-" + type);
+
+                const list = stats[type];
+
+                const percent = total ? (list.length / total) * 100 : 0;
+
+                bar.style.width = percent + "%";
+
+                avatarBox.innerHTML = "";
+
+                /* avatar giống zalo */
+
+                list.slice(0, 6).forEach(name => {
+
+                    const av = document.createElement("div");
+
+                    av.className = "avatar";
+
+                    av.innerText = name[0].toUpperCase();
+
+                    avatarBox.appendChild(av);
+
+                });
+
+            });
+
+        }
         console.log("poemID:", poemID);
+        const reactionRef = collection(db, "super_poem", poemID, "reactions");
+
+        onSnapshot(reactionRef, (snap) => {
+
+            const stats = {
+                sad: [],
+                happy: [],
+                romantic: [],
+                fire: [],
+                cool: []
+            };
+
+            snap.forEach(docSnap => {
+
+                const data = docSnap.data();
+
+                (data.reactions || []).forEach(type => {
+
+                    if (stats[type]) {
+                        stats[type].push(data.username);
+                    }
+
+                });
+
+            });
+
+            updateReactionUI(stats);
+
+        });
+        function renderThread(comment, allComments, parentDiv) {
+
+            const div = document.createElement("div");
+
+            div.className = comment.parent ? "reply" : "echo-comment";
+
+            div.dataset.id = comment.id;
+
+            div.innerHTML = commentHTML(comment);
+
+
+            const replyBtn = div.querySelector(".replyBtn");
+
+            if (replyBtn) {
+
+                replyBtn.onclick = () => {
+
+                    const boxReply = document.createElement("div");
+
+                    boxReply.innerHTML = `
+<textarea class="inputBox"></textarea>
+<button class="sendBtn">Gửi</button>
+`;
+
+                    div.appendChild(boxReply);
+
+                    const textarea = boxReply.querySelector("textarea");
+                    const btn = boxReply.querySelector("button");
+
+                    btn.onclick = send;
+
+                    textarea.addEventListener("keydown", e => {
+                        if (e.ctrlKey && e.key === "Enter") send();
+                    });
+
+                    async function send() {
+
+                        const text = textarea.value.trim();
+                        if (!text) return;
+
+                        await createReply(text, comment.id, comment.lineIndex);
+
+                        boxReply.remove();
+
+                    }
+
+                };
+
+            }
+
+
+            parentDiv.appendChild(div);
+
+            /* tìm container reply */
+
+            let replyBox = div.querySelector(".replyList");
+
+            if (!replyBox) {
+
+                replyBox = document.createElement("div");
+
+                replyBox.className = "replyList";
+
+                div.appendChild(replyBox);
+
+            }
+
+            /* tìm reply của comment */
+
+            const replies = allComments.filter(c => c.parent === comment.id);
+
+            /* render đệ quy */
+
+            replies.forEach(r => {
+                renderThread(r, allComments, replyBox);
+            });
+            /* delete */
+
+            const deleteBtn = div.querySelector(".deleteBtn");
+
+            if (deleteBtn) {
+
+                deleteBtn.onclick = async () => {
+                    if (username !== comment.username && username !== "admin") return;
+
+                    if (!confirm("Bạn chắc chắn muốn xóa?")) return;
+
+                    await deleteCommentTree(comment.id);
+                }
+            };
+
+            /* like */
+
+            const likeBtn = div.querySelector(".likeBtn");
+
+            if (likeBtn) {
+
+                likeBtn.onclick = async () => {
+
+                    const ref = doc(db, "super_poem", poemID, "comment", comment.id);
+
+                    await updateDoc(ref, {
+                        hearts: increment(1)
+                    });
+
+                };
+
+            }
+
+        }
+        function renderLineThread(comment, allComments, parentDiv = null) {
+
+            const lines = document.querySelectorAll(".line");
+
+            let container;
+
+            if (parentDiv) {
+                container = parentDiv;
+            } else {
+
+                const line = lines[comment.lineIndex];
+                if (!line) return;
+
+                const box = line.nextElementSibling;
+                if (!box) return;
+
+                container = box.querySelector(".line-comments");
+                if (!container) return;
+
+            }
+
+            const div = document.createElement("div");
+
+            div.className = comment.parent ? "reply" : "comment";
+
+            div.dataset.id = comment.id;
+
+            div.innerHTML = commentHTML(comment);
+
+            container.appendChild(div);
+
+            /* reply button */
+
+            const replyBtn = div.querySelector(".replyBtn");
+
+            if (replyBtn) {
+
+                replyBtn.onclick = () => {
+
+                    const boxReply = document.createElement("div");
+
+                    boxReply.innerHTML = `
+<textarea class="inputBox"></textarea>
+<button class="sendBtn">Gửi</button>
+`;
+
+                    div.appendChild(boxReply);
+
+                    const textarea = boxReply.querySelector("textarea");
+                    const btn = boxReply.querySelector("button");
+
+                    btn.onclick = send;
+
+                    textarea.addEventListener("keydown", e => {
+                        if (e.ctrlKey && e.key === "Enter") send();
+                    });
+
+                    async function send() {
+
+                        const text = textarea.value.trim();
+                        if (!text) return;
+
+                        await createReply(text, comment.id, comment.lineIndex);
+
+                        boxReply.remove();
+
+                    }
+
+                };
+
+            }
+
+            /* delete */
+
+            const deleteBtn = div.querySelector(".deleteBtn");
+
+            if (deleteBtn) {
+
+                deleteBtn.onclick = async () => {
+                    if (username !== comment.username && username !== "admin") return;
+
+                    if (!confirm("Bạn chắc chắn muốn xóa?")) return;
+
+                    await deleteCommentTree(comment.id);
+                }
+            };
+
+            /* like */
+
+            const likeBtn = div.querySelector(".likeBtn");
+
+            if (likeBtn) {
+
+                likeBtn.onclick = async () => {
+
+                    const ref = doc(db, "super_poem", poemID, "comment", comment.id);
+
+                    await updateDoc(ref, {
+                        hearts: increment(1)
+                    });
+
+                };
+
+            }
+
+            /* reply container */
+
+            let replyBox = div.querySelector(".replyList");
+
+            if (!replyBox) {
+
+                replyBox = document.createElement("div");
+                replyBox.className = "replyList";
+
+                div.appendChild(replyBox);
+            }
+
+            const replies = allComments.filter(c => c.parent === comment.id);
+
+            replies.forEach(r => {
+                renderLineThread(r, allComments, replyBox);
+            });
+
+        }
+
+        function loadComments() {
+            if (!commentMode) return;
+            if (unsubscribeComments) unsubscribeComments();
+            if (commentMode) {
+                document.querySelector(".container").appendChild(loadingBox);
+            }
+            unsubscribeComments = onSnapshot(q, (snapshot) => {
+
+                echoList.innerHTML = "";
+                const comments = [];
+
+                snapshot.forEach(docSnap => {
+                    comments.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                /* badge */
+
+
+                /* dư âm */
+
+                comments
+                    .filter(c => !c.parent && c.lineIndex === undefined)
+                    .forEach(c => {
+                        renderThread(c, comments, echoList);
+                    });
+
+            });
+
+        }
+
+        const lineListeners = {};
+        function loadLineComments(lineIndex, box) {
+
+            if (lineListeners[lineIndex]) {
+                lineListeners[lineIndex]();
+            }
+            const qLine = query(
+                collection(db, "super_poem", poemID, "comment"),
+                where("lineIndex", "==", lineIndex),
+                orderBy("created", "asc")
+            );
+
+            lineListeners[lineIndex] = onSnapshot(qLine, (snapshot) => {
+                box.innerHTML = "";
+                loadingBox.remove();
+                const comments = [];
+
+                snapshot.forEach(docSnap => {
+                    comments.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                comments
+                    .filter(c => !c.parent)
+                    .forEach(c => {
+                        renderLineThread(c, comments, box);
+                    });
+
+            });
+
+        }
+        lines.forEach((line, index) => {
+
+            const heart = document.createElement("span");
+
+            heart.className = "line-heart";
+
+            heart.innerHTML = " ❤️ 0";
+
+            heart.onclick = async () => {
+
+                const ref = doc(db, "super_poem", poemID, "lineHearts", String(index));
+
+                await setDoc(ref, {
+                    hearts: increment(1)
+                }, { merge: true });
+
+            };
+
+            line.appendChild(heart);
+
+        });
+        const heartRef = collection(db, "super_poem", poemID, "lineHearts");
+
+        onSnapshot(heartRef, (snap) => {
+
+            snap.forEach(docSnap => {
+
+                const index = docSnap.id;
+
+                const hearts = docSnap.data().hearts || 0;
+
+                const line = document.querySelectorAll(".line")[index];
+
+                if (!line) return;
+
+                const heart = line.querySelector(".line-heart");
+
+                if (heart) {
+                    heart.innerHTML = ` ❤️ ${hearts}`;
+                }
+
+            });
+
+        });
     </script>
     <script src="iframe.js"></script>
 
