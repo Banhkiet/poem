@@ -1,11 +1,11 @@
 import { doc, updateDoc } from "firebase/firestore";
 
-async function approvePoem(id){
+async function approvePoem(id) {
 
-await updateDoc(doc(db,"poems",id),{
-status:"approved"
-});
+    await updateDoc(doc(db, "poems", id), {
+        status: "approved"
+    });
 
-alert("Đã duyệt bài thơ");
+    alert("Đã duyệt bài thơ");
 
 }

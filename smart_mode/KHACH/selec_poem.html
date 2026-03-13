@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Thư viện thơ</title>
+
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            background: #f3f6ff;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .poem-card {
+
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+
+            cursor: pointer;
+
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+
+            transition: .2s;
+        }
+
+        .poem-card:hover {
+
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2f4cff;
+        }
+
+        .meta {
+
+            font-size: 13px;
+            color: #666;
+            margin-top: 4px;
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>📚 Thư viện thơ</h1>
+
+        <div id="poemList"></div>
+
+    </div>
+
+    <script type="module">
+
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+        import {
+            getFirestore,
+            collection,
+            getDocs
+        }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+            authDomain: "banhkietgithunbpoem.firebaseapp.com",
+            projectId: "banhkietgithunbpoem"
+
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const list = document.getElementById("poemList");
+
+        /* load poems */
+
+        async function loadPoems() {
+
+            const snap = await getDocs(collection(db, "uploads"));
+
+            snap.forEach(docSnap => {
+
+                const data = docSnap.data();
+                const id = docSnap.id;
+
+                const card = document.createElement("div");
+
+                card.className = "poem-card";
+
+                card.innerHTML = `
+
+<div class="title">${data.title}</div>
+
+<div class="meta">
+Tác giả: ${data.username || "ẩn danh"}
+</div>
+
+`;
+
+                card.onclick = () => {
+
+                    location.href =
+                        `lib_hu.html?id=${id}`;
+
+                };
+
+                list.appendChild(card);
+
+            });
+
+        }
+
+        loadPoems();
+
+    </script>
+
+</body>
+
+</html>

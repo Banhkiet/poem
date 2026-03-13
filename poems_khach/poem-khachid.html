@@ -254,7 +254,21 @@
         const poemId = params.get("id");
 
         /* load poem */
+        function loadFont(font) {
 
+            if (!font) return;
+
+            const link = document.createElement("link");
+
+            link.rel = "stylesheet";
+            link.href =
+                "https://fonts.googleapis.com/css2?family="
+                + font.replace(/ /g, "+")
+                + "&display=swap";
+
+            document.head.appendChild(link);
+
+        }
         async function loadPoem() {
 
             if (!poemId) return;
@@ -265,7 +279,8 @@
             if (!snap.exists()) return;
 
             const data = snap.data();
-
+            loadFont(data.fontTitle);
+            loadFont(data.fontContent);
             /* title */
 
             const title = document.getElementById("poem-title");
@@ -302,6 +317,7 @@
         }
 
         loadPoem();
+
 
         /* ================= AUDIO PLAYER ================= */
 

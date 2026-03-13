@@ -1,0 +1,2089 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Không gian thơ</title>
+
+    <style>
+        /* ================= BODY ================= */
+
+        body {
+            font-family: "Times New Roman", serif;
+            background: #f3f6ff;
+            padding: 50px;
+            transition: 0.4s;
+            overflow-x: hidden;
+            color: #222;
+        }
+
+        .line.active {
+            color: #ffeaa7;
+            text-shadow: 0 0 8px #ffd54f;
+        }
+
+        /* ================= CONTAINER ================= */
+
+        .container {
+            max-width: 720px;
+            margin: auto;
+        }
+
+        /* like heart */
+        @keyframes flyHeart {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-25px);
+                opacity: 0;
+            }
+        }
+
+        /* ================= TITLE ================= */
+
+        .title {
+            font-size: 34px;
+            text-align: center;
+            margin-bottom: 25px;
+            white-space: pre-wrap;
+
+        }
+
+        /* ================= POEM ================= */
+
+        .line {
+            font-size: 22px;
+            margin: 10px 0;
+            cursor: pointer;
+            line-height: 1.6;
+            align-items: center;
+            display: flex;
+            white-space: pre-wrap;
+            /* giữ khoảng cách và thụt dòng */
+
+        }
+
+        /* ================= COMMENT ================= */
+
+        .comment-box {
+            margin: 10px 0 16px 20px;
+            padding: 10px;
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-comment {
+            background: #FFE4C4;
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin: 4px 0;
+            font-size: 14px;
+            white-space: pre-wrap;
+        }
+
+
+        .comment small {
+            color: #666;
+            margin-left: 6px;
+        }
+
+
+
+        .username {
+            color: #2f4cff;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .username:hover {
+            text-decoration: underline;
+        }
+
+        /* ================= BUTTONS ================= */
+
+
+        #toggleComment {
+            background: #e6eaff;
+        }
+
+        #toggleComment.active {
+            background: #ffd966;
+            color: #5a3d00;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+            border: 1px solid #e6b800;
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        #superMode {
+            background: #e6eaff;
+            transition: 0.25s;
+        }
+
+        /* khi bật super mode */
+        .super-bar {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .super-mode #superMode {
+            background: #2ecc71;
+            color: white;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+            border: 1px solid #1e9e52;
+        }
+
+        /* khi khóa comment */
+
+        .disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        /* ================= SUPER MODE ================= */
+
+        .super-mode {
+            background: #0f1117;
+            color: white;
+        }
+
+        .super-mode .line {
+            color: white;
+
+        }
+
+        .super-mode .title {
+            color: white;
+        }
+
+        .super-mode .echo {
+            color: black;
+        }
+
+        /*  hieuej uwngs nut */
+        button {
+            padding: 8px 14px;
+            margin: 6px 6px 0 0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ================= FIREFLY ================= */
+
+        .firefly {
+            position: fixed;
+            width: 6px;
+            height: 6px;
+            background: #ffe66d;
+            border-radius: 50%;
+            opacity: 0.8;
+            animation: fly 6s linear infinite;
+            box-shadow: 0 0 8px #ffe66d, 0 0 14px #ffe66d;
+            animation: fly 4s linear infinite, blink 1.2s infinite;
+            position: fixed;
+            pointer-events: none;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: .3
+            }
+
+            50% {
+                opacity: 1
+            }
+        }
+
+        @keyframes fly {
+
+            0% {
+                transform: translate(0, 0)
+            }
+
+            25% {
+                transform: translate(40px, -120px)
+            }
+
+            50% {
+                transform: translate(-30px, -260px)
+            }
+
+            75% {
+                transform: translate(20px, -400px)
+            }
+
+            100% {
+                transform: translate(-10px, -600px)
+            }
+
+        }
+
+        /* ================= ECHO ================= */
+        .echo-text {
+            white-space: pre-wrap;
+        }
+
+        .echo-comment {
+            background: #FFE4C4;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .echo-comment .username {
+            color: #2e8b57;
+            /* xanh lá cho comment chính */
+            font-weight: bold;
+        }
+
+        /* reply */
+
+        .reply {
+            margin-left: 35px;
+            margin-top: 6px;
+            padding: 6px 8px;
+            background: #FFE4C4;
+            border-radius: 6px;
+        }
+
+        .reply .username {
+            color: #2f4cff;
+            font-style: italic;
+        }
+
+        /* buttons */
+
+        .sendBtn {
+            background: #4caf50;
+            color: white;
+        }
+
+        .replyBtn {
+            background: #e7dcff;
+        }
+
+        .deleteBtn {
+            background: #ffd6d6;
+        }
+
+        /* ================= POEM ================= */
+
+        /* Thêm hover cho các ký tự trong dòng khi bật comment */
+        .line span {
+            transition: color 0.3s ease;
+        }
+
+        /* Khi hover vào từng ký tự */
+        .line.hover:hover {
+            color: #2ecc71;
+            text-shadow: 0 0 6px rgba(46, 204, 113, 0.6);
+        }
+
+        .line span {
+            animation: fadeIn 0.4s forwards;
+        }
+
+        .line-heart {
+            font-size: 14px;
+            margin-left: 10px;
+            cursor: pointer;
+            color: #ff4d6d;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        #reactionBar button {
+            background: #e6eaff;
+            margin: 4px;
+        }
+
+        #reactionBar button.active {
+            background: #8ea2ff;
+            color: white;
+        }
+
+        #reactionStats {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+
+        .reaction-row {
+            display: flex;
+            align-items: center;
+            margin: 12px 0;
+            gap: 12px;
+        }
+
+        .emoji {
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .bar {
+            flex: 1;
+            height: 8px;
+            background: #dde4f2;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fill {
+            height: 100%;
+            width: 0%;
+            background: #4c6ef5;
+            transition: 0.4s;
+        }
+
+        .avatars {
+            display: flex;
+        }
+
+        .avatar {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #3a6ea5;
+            color: white;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: -6px;
+            border: 2px solid white;
+        }
+
+        .echo-comment {
+            background: #FFF8E8;
+            padding: 8px;
+            border-radius: 6px;
+            margin: 8px 0;
+        }
+
+        /* các nút điều khiển  */
+        .control-bar {
+
+            display: flex;
+            align-items: center;
+            gap: 16px;
+
+            margin-top: 16px;
+            flex-wrap: wrap;
+
+        }
+
+        .control-bar button {
+
+            background: #e6eaff;
+        }
+
+        .control-bar audio {
+
+            height: 36px;
+        }
+
+        /* CÁC NÚT NHẤN PHẢN HỒI GỬI */
+        #sendEcho {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .replyBtn {
+            background: #e9ddff;
+        }
+
+        .deleteBtn {
+            background: #ffd7d7;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            transition: 0.2s;
+        }
+
+        .duam {
+            background-color: #e9ddff;
+        }
+
+        .inputBox {
+            width: calc(100% - 10px);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: "Times New Roman", serif;
+            resize: vertical;
+            white-space: pre-wrap;
+            margin-top: 6px;
+        }
+
+        #echoInput {
+            width: calc(100% - 10px);
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-family: "Times New Roman", serif;
+            resize: vertical;
+            white-space: pre-wrap;
+            margin-top: 6px;
+        }
+
+        /* ===== SUPER MODE UI FIX ===== */
+
+        .super-mode .echo {
+            background: #1a1d26;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .super-mode .duam {
+            background: #2b2f3a;
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+        .super-mode .echo-comment {
+            background: #232733;
+            color: #ddd;
+        }
+
+        .super-mode .reply {
+            background: #1e2230;
+            color: #ddd;
+        }
+
+        .super-mode #echoInput {
+            background: #11141c;
+            color: white;
+            border: 1px solid #333;
+        }
+
+        .super-mode button {
+            background: #2b2f3a;
+            color: white;
+        }
+
+        .echo {
+            margin-top: 30px;
+            padding: 20px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            width: 100%;
+        }
+
+        /* ===== SUPER MODE CONTROL PANEL ===== */
+
+        .super-mode .poem-control {
+
+            background: #1a1d26;
+            color: #ddd;
+
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+
+        }
+
+        .super-mode .bar {
+            background: #3a3f4f;
+        }
+
+        .super-mode .fill {
+            background: #7c8cff;
+        }
+
+        .super-mode .emoji {
+            filter: brightness(1.2);
+        }
+
+
+        /* ===== CONTROL PANEL ===== */
+
+        .poem-control {
+            background: linear-gradient(135deg, #f6f8ff, #eef2ff);
+            padding: 4px 20px 20px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            margin-top: 100px;
+
+            width: 100%;
+        }
+
+        /* title */
+
+        .control-title {
+
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+
+            margin-top: 12px;
+            margin-bottom: 12px;
+            color: #4c5cff;
+
+        }
+
+        #musicControl {
+            display: none;
+        }
+
+        .replyList {
+            margin-left: 25px;
+            border-left: 2px solid #eee;
+            padding-left: 10px;
+        }
+
+        .cmt-count {
+            color: #888;
+            font-size: 0.9em;
+            margin-left: 8px;
+        }
+
+        .line.hot-line {
+            background: rgba(255, 180, 0, 0.15);
+            border-left: 4px solid orange;
+            padding-left: 6px;
+        }
+
+        .super-mode .line-heart {
+            display: none;
+        }
+
+        /* ===== LOADING POEM ===== */
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: linear-gradient(135deg, #f3f6ff, #eef2ff);
+
+            z-index: 9999;
+            transition: 0.5s;
+        }
+
+        .loading-box {
+
+            text-align: center;
+            font-family: "Times New Roman", serif;
+
+            color: #4c5cff;
+
+        }
+
+        .loading-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .loading-sub {
+            font-size: 15px;
+            color: #777;
+        }
+
+        /* chấm chạy */
+
+        .loading-dots span {
+            animation: blink 1.4s infinite;
+        }
+
+        .loading-dots span:nth-child(2) {
+            animation-delay: .2s;
+        }
+
+        .loading-dots span:nth-child(3) {
+            animation-delay: .4s;
+        }
+
+        @keyframes blink {
+
+            0%,
+            80%,
+            100% {
+                opacity: .2
+            }
+
+            40% {
+                opacity: 1
+            }
+        }
+
+        /* ===== SPACE PORTAL BACK BUTTON ===== */
+
+        #spacePortal {
+
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+
+            width: 70px;
+            height: 70px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+
+            opacity: 0.7;
+            transition: 0.4s;
+
+            z-index: 999;
+
+        }
+
+        /* vòng xoáy */
+
+        .portal-core {
+
+            width: 60px;
+            height: 60px;
+
+            border-radius: 50%;
+
+            background:
+                radial-gradient(circle, #7c8cff, #3a3f8f, #0f1117);
+
+            box-shadow:
+                0 0 20px #7c8cff,
+                0 0 40px #5b6fff,
+                inset 0 0 20px #ffffff33;
+
+            animation: portalSpin 6s linear infinite;
+
+        }
+
+        /* glow */
+
+        #spacePortal:hover {
+
+            transform: scale(1.15);
+            opacity: 1;
+
+        }
+
+        /* vòng xoay */
+
+        @keyframes portalSpin {
+
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+
+        }
+
+        /* ===== NORMAL MODE ===== */
+
+        body.normal-mode {
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        /* portal sáng */
+
+        body.normal-mode #spacePortal .portal-core {
+
+            background: linear-gradient(135deg, #ffffff, #e4e8ff);
+
+            box-shadow:
+                0 0 10px #ffffff,
+                0 0 20px #bfc7ff,
+                inset 0 0 10px #ffffff;
+
+        }
+
+        /* ===== SUPER MODE ===== */
+
+        body.super-mode {
+            background-color: #05070f;
+        }
+
+        /* portal vũ trụ giữ nguyên */
+
+        body.super-mode #spacePortal .portal-core {
+
+            background:
+                radial-gradient(circle, #7c8cff, #3a3f8f, #0f1117);
+
+            box-shadow:
+                0 0 20px #7c8cff,
+                0 0 40px #5b6fff,
+                inset 0 0 20px #ffffff33;
+
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="spacePortal">
+        <div class="portal-core"></div>
+    </div>
+    <div id="loadingScreen" class="loading-screen">
+
+        <div class="loading-box">
+
+            <div class="loading-title">
+                📜 Đang tải tài liệu
+                <span class="loading-dots">
+                    <span>.</span><span>.</span><span>.</span>
+                </span>
+            </div>
+
+            <div class="loading-sub">
+                Xin chờ một chút, thơ đang được mở
+            </div>
+
+        </div>
+
+    </div>
+    <div class="container">
+
+        <div class="title">
+        </div>
+
+        <div id="poem"> </div>
+        <div class="poem-control">
+
+
+            <h3 class="control-title">Cảm xúc người đọc</h3>
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="sad">😢</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-sad"></div>
+                </div>
+
+                <div class="avatars" id="avatar-sad"></div>
+            </div>
+
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="happy">😊</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-happy"></div>
+                </div>
+
+                <div class="avatars" id="avatar-happy"></div>
+            </div>
+
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="romantic">💖</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-romantic"></div>
+                </div>
+
+                <div class="avatars" id="avatar-romantic"></div>
+            </div>
+
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="fire">🔥</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-fire"></div>
+                </div>
+
+                <div class="avatars" id="avatar-fire"></div>
+            </div>
+
+            <div class="reaction-row">
+                <div class="emoji reactBtn" data-type="cool">❄️</div>
+
+                <div class="bar">
+                    <div class="fill" id="bar-cool"></div>
+                </div>
+
+                <div class="avatars" id="avatar-cool"></div>
+            </div>
+
+
+            <div id="reactionStats"></div>
+            <div class="super-bar">
+
+
+
+            </div>
+            <div class="control-bar">
+
+                <button id="toggleComment">
+                    💬 Bật comment theo dòng
+                </button>
+                <button id="superMode">
+                    🌌 Đọc thơ siu cấp
+                </button>
+
+                <div id="musicControl">
+                    <audio id="poemAudio" controls></audio>
+                </div>
+            </div>
+        </div>
+
+        <div class="echo">
+            <button id="savePoem">📚 Lưu vào sổ thơ</button>
+            <h3 class="duam">Dư âm bài thơ</h3>
+
+            <textarea id="echoInput" placeholder="Viết dư âm... (Ctrl + Enter để gửi)"></textarea> <button
+                id="sendEcho">Gửi</button>
+
+            <div id="echoList"></div>
+
+        </div>
+    </div>
+    <script type="module">
+        /* import firebase*/
+        import { initializeApp }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
+
+        import {
+            getFirestore,
+            doc,
+            getDoc,
+            setDoc,
+            collection,
+            addDoc,
+            query,
+            orderBy,
+            onSnapshot,
+            updateDoc,
+            increment,
+            where,
+            getDocs,
+            deleteDoc
+        }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
+
+        import {
+            getAuth,
+            onAuthStateChanged
+        }
+            from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
+
+        /* khởi tạo firebase */
+        const firebaseConfig = {
+            apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
+            authDomain: "banhkietgithunbpoem.firebaseapp.com",
+            projectId: "banhkietgithunbpoem"
+        };
+
+        const app = initializeApp(firebaseConfig);
+
+        const db = getFirestore(app);
+
+        const auth = getAuth(app);
+
+
+
+        let bgImage = "";
+
+        /*  khai báo biến chung */
+        let username = "Khách";
+        let currentUser = null;
+        let poemID = new URLSearchParams(location.search).get("id");
+
+        function loadFont(fontName) {
+
+            if (!fontName) return;
+
+            const id = "font-" + fontName.replace(/\s+/g, "-");
+
+            if (document.getElementById(id)) return;
+
+            const link = document.createElement("link");
+
+            link.id = id;
+            link.rel = "stylesheet";
+
+            link.href =
+                "https://fonts.googleapis.com/css2?family=" +
+                fontName.replace(/ /g, "+") +
+                "&display=swap";
+
+            document.head.appendChild(link);
+
+        }
+
+        async function loadPoem() {
+
+            if (!poemID) return;
+
+            const ref = doc(db, "uploads", poemID);
+            const snap = await getDoc(ref);
+
+            if (snap.exists()) {
+
+                const data = snap.data();
+                if (data.background) {
+                    bgImage = data.background;
+                }
+                loadFont(data.fontTitle);
+                loadFont(data.fontContent);
+
+                /* title */
+
+                const titleEl = document.querySelector(".title");
+                titleEl.innerText = data.title || "";
+
+                /* font tiêu đề */
+                if (data.fontTitle) {
+                    titleEl.style.fontFamily = data.fontTitle;
+                }
+
+                /* load poem */
+
+                if (data.back_img) {
+
+                    bgImage = data.back_img;
+
+                    document.body.style.backgroundImage = `url(${bgImage})`;
+
+                }
+
+                /* super mode */
+
+
+                /* render poem */
+
+                const poemBox = document.getElementById("poem");
+
+                poemBox.innerHTML = "";
+
+                const lineList = (data.content || "").split("\n");
+                lineList.forEach(lineText => {
+
+                    const div = document.createElement("div");
+                    div.className = "line";
+
+                    /* font nội dung */
+                    if (data.fontContent) {
+                        div.style.fontFamily = data.fontContent;
+                    }
+
+                    div.innerHTML = `
+<span class="line-text">${lineText}</span>
+<span class="line-heart">❤️ 0</span>
+`;
+
+                    poemBox.appendChild(div);
+
+                });
+                function initLineHearts() {
+                    onSnapshot(heartRef, (snap) => {
+
+                        snap.forEach(docSnap => {
+
+                            const index = docSnap.id;
+
+                            const hearts = docSnap.data().hearts || 0;
+
+                            const line = lines[Number(index)];
+                            if (!line) return;
+
+                            const heart = line.querySelector(".line-heart");
+
+                            if (heart) {
+                                heart.innerHTML = ` ❤️ ${hearts}`;
+                            }
+
+                        });
+
+                    });
+                }
+                updateLines();
+                bindLineEvents();
+                bindLineHearts();
+                initLineHearts();
+                /* ===== NORMAL MODE BACKGROUND ===== */
+
+                document.body.classList.add("normal-mode");
+
+                if (bgImage) {
+                    document.body.style.backgroundImage = `url(${bgImage})`;
+                }
+                document.getElementById("loadingScreen").style.opacity = "0";
+                setTimeout(() => {
+                    document.getElementById("loadingScreen").remove();
+                }, 500);
+
+                /* ===== AUDIO ===== */
+
+                /* audio */
+
+                if (data.audio) {
+                    audio.src = data.audio;
+                    audio.load();
+                }
+
+            }
+
+        }
+
+        loadPoem();   // ← THÊM DÒNG NÀY
+
+
+
+
+
+
+
+
+
+        const reactBtns = document.querySelectorAll(".reactBtn");
+
+        async function deleteCommentTree(commentId) {
+
+            const q = query(
+                collection(db, "super_poem", poemID, "comment"),
+                where("parent", "==", commentId)
+            );
+
+            const snap = await getDocs(q);
+
+            for (const d of snap.docs) {
+
+                await deleteCommentTree(d.id);
+
+            }
+
+            await deleteDoc(
+                doc(db, "super_poem", poemID, "comment", commentId)
+            );
+
+        }
+        reactBtns.forEach(btn => {
+
+            btn.onclick = async () => {
+
+                if (!currentUser) {
+                    alert("Bạn cần đăng nhập");
+                    return;
+                }
+
+                const type = btn.dataset.type;
+
+                const ref = doc(db, "super_poem", poemID, "reactions", currentUser.uid);
+
+                const snap = await getDoc(ref);
+
+                let list = [];
+
+                if (snap.exists()) {
+                    list = snap.data().reactions || [];
+                }
+
+                /* nếu đã chọn thì bỏ */
+                if (list.includes(type)) {
+
+                    list = list.filter(e => e !== type);
+
+                } else {
+
+                    if (list.length >= 3) {
+                        alert("Bạn chỉ được chọn tối đa 3 cảm xúc");
+                        return;
+                    }
+
+                    list.push(type);
+
+                }
+
+                await setDoc(ref, {
+                    username: username,
+                    reactions: list
+                }, { merge: true });
+
+            };
+
+        });
+        if (!poemID) {
+
+            const title = document.querySelector(".title").innerText;
+
+            poemID = title
+                .toLowerCase()
+                .replace(/\s+/g, "_")
+                .replace(/[^\w]/g, "");
+
+            console.log("poemID tự tạo:", poemID);
+
+        }
+
+        const echoList = document.getElementById("echoList");
+        const loadingBox = document.createElement("div");
+        loadingBox.id = "loadingComment";
+        loadingBox.innerText = "Web lỏ, load lâu, đợi tí...";
+        loadingBox.style.fontStyle = "italic";
+        loadingBox.style.margin = "10px 0";
+
+        /*Realtime comment Firebase*/
+
+        const q = query(
+            collection(db, "super_poem", poemID, "comment"),
+            orderBy("created", "asc")
+        );
+
+
+
+
+
+        /* Hiển thị dư âm */
+
+        /*Hiển thị cmt theo dòng */
+        /* Reply cmt */
+        async function createReply(text, parent, lineIndex = null) {
+            if (username === "Khách") {
+                alert("Bạn cần đăng nhập");
+                return;
+            }
+            await addDoc(
+                collection(db, "super_poem", poemID, "comment"),
+                {
+                    uid: currentUser.uid,
+                    username: username,
+                    parent: parent,          // ⚠️ THIẾU CÁI NÀY
+                    lineIndex: lineIndex,
+                    text: text,
+                    created: Date.now(),
+                    hearts: 0
+                }
+            );
+
+        }
+        /*  Nút super mode */
+        const superBtn = document.getElementById("superMode");
+
+        const audio = document.getElementById("poemAudio");
+        const musicControl = document.getElementById("musicControl");
+
+        superBtn.onclick = () => {
+
+            const active = document.body.classList.toggle("super-mode");
+
+            if (active) {
+
+                document.body.classList.remove("normal-mode");
+
+                document.body.style.backgroundImage = "none";
+
+                /* chỉ tắt comment theo dòng */
+
+                commentMode = false;
+                toggleBtn.classList.remove("active");
+                toggleBtn.innerText = "💬 Bật comment theo dòng";
+
+                /* KHÔNG khóa reply nữa */
+
+                musicControl.style.display = "block";
+
+                audio.currentTime = 0;
+                audio.play();
+
+                animatePoem();
+                createFireflies();
+
+            } else {
+
+                document.body.classList.remove("super-mode");
+                document.body.classList.add("normal-mode");
+
+                if (bgImage) {
+                    document.body.style.backgroundImage = `url(${bgImage})`;
+                }
+
+                musicControl.style.display = "none";
+
+                audio.pause();
+
+                removeFireflies();
+                resetPoem();
+
+            }
+
+        };
+        /*Kiểm tra đăng nhập */
+        onAuthStateChanged(auth, async (user) => {
+
+            if (user) {
+
+                currentUser = user;
+
+                const userRef = doc(db, "users", user.uid);
+
+                const snap = await getDoc(userRef);
+
+                if (snap.exists()) {
+                    username = snap.data().username || "Khách";
+                }
+
+                console.log("Đăng nhập:", username);
+
+            } else {
+
+                username = "Khách";
+                currentUser = null;
+
+            }
+
+        });
+        /* load */
+
+        let unsubscribeComments = null;
+        /* Gửi comment dư âm */
+
+        const echoInput = document.getElementById("echoInput");
+        const sendEchoBtn = document.getElementById("sendEcho");
+
+        sendEchoBtn.onclick = sendEchoComment;
+
+        echoInput.addEventListener("keydown", e => {
+
+            if (e.ctrlKey && e.key === "Enter") {
+                e.preventDefault();
+                sendEchoComment();
+            }
+
+        });
+        async function sendEchoComment() {
+
+            if (username === "Khách") {
+                alert("Bạn cần đăng nhập để bình luận");
+                return;
+            }
+
+            const text = echoInput.value.trim();
+
+            if (!text) return;
+
+            await addDoc(
+                collection(db, "super_poem", poemID, "comment"),
+                {
+                    uid: currentUser.uid,
+                    username: username,
+                    text: text,
+                    created: Date.now(),
+                    hearts: 0
+                }
+            );
+
+            echoInput.value = "";
+
+        }
+        /*Comment theo dong */
+        let commentMode = false;
+
+        let lines = [];
+
+        function updateLines() {
+            lines = document.querySelectorAll(".line");
+        }
+
+        const toggleBtn = document.getElementById("toggleComment");
+        toggleBtn.onclick = () => {
+
+            commentMode = !commentMode;
+
+            toggleBtn.classList.toggle("active");
+
+            toggleBtn.innerText = commentMode
+                ? "💬 Tắt comment theo dòng"
+                : "💬 Bật comment theo dòng";
+
+            lines.forEach(line => {
+                line.classList.toggle("hover", commentMode);
+            });
+
+            if (commentMode) {
+
+                loadComments();
+
+            } else {
+
+                if (unsubscribeComments) unsubscribeComments();
+
+                document.querySelectorAll(".comment-box").forEach(e => e.remove());
+
+            }
+
+        };
+        /*  gưi comment theo dong */
+
+
+        async function createLineComment(text, lineIndex) {
+
+            if (username === "Khách") {
+                alert("Bạn cần đăng nhập");
+                return;
+            }
+
+            await addDoc(
+                collection(db, "super_poem", poemID, "comment"),
+                {
+                    uid: currentUser.uid,
+                    username: username,
+                    text: text,
+                    lineIndex: lineIndex,
+
+                    created: Date.now(),
+                    hearts: 0
+                }
+            );
+
+        } /* loading */
+
+        /* load cmt */
+
+        function commentHTML(data) {
+
+            if (data.deleted) {
+
+                return `
+<div>
+<a href="profile_cmt.html?username=${data.username}" class="username">
+${data.username}
+</a>
+<small>đã xóa bình luận này</small>
+</div>
+
+<div style="font-style:italic;color:#888;">
+[comment đã bị xóa]
+</div>
+
+<div class="replyList"></div>
+`;
+
+            }
+
+            return `
+<div>
+<a href="profile_cmt.html?username=${data.username}" class="username">
+${data.username}
+</a>
+
+<small>${new Date(data.created).toLocaleString()}</small>
+</div>
+
+<div class="echo-text">${data.text}</div>
+
+<button class="likeBtn">❤️ ${data.hearts || 0}</button>
+<button class="replyBtn">Phản hồi</button>
+<button class="deleteBtn" title="Chỉ tác giả hoặc admin mới được xóa">Xóa</button>
+<div class="replyList"></div>
+`;
+        }
+
+
+
+
+        let typeTimers = [];
+        let fireflies = [];
+
+
+        /* cahyj chư */
+        function animatePoem() {
+
+            let delay = 0;
+
+            stopAnimation();
+
+            lines.forEach(line => {
+
+                if (!line.dataset.original) {
+                    line.dataset.original = line.innerText;
+                }
+
+                const text = line.dataset.original;
+
+                line.innerHTML = "";
+
+                [...text].forEach(char => {
+
+                    const timer = setTimeout(() => {
+
+                        if (!document.body.classList.contains("super-mode")) return;
+
+                        const span = document.createElement("span");
+
+                        span.innerHTML = char === " " ? "&nbsp;" : char;
+
+                        span.style.display = "inline-block";
+                        span.style.opacity = "0";
+
+                        line.appendChild(span);
+                        /* chọn hướng bay ngẫu nhiên */
+                        const dx = (Math.random() - 0.5) * 300;
+                        const dy = (Math.random() - 0.5) * 200;
+                        const rot = (Math.random() - 0.5) * 180;
+
+                        span.animate(
+                            [
+                                { transform: `translate(${dx}px,${dy}px) rotate(${rot}deg) scale(0.4)`, opacity: 0 },
+
+                                { transform: `translate(${dx * 0.2}px,${dy * 0.2}px) rotate(${rot * 0.2}deg) scale(1.1)`, opacity: 1 },
+
+                                { transform: "translate(0px,0px) rotate(0deg) scale(1.05)" },
+
+                                { transform: "translate(0px,0px) rotate(0deg) scale(1)" }
+
+                            ],
+                            {
+                                duration: 700,
+                                easing: "cubic-bezier(.22,1,.36,1)",
+                                fill: "forwards"
+                            }
+                        );
+
+                    }, delay);
+
+                    typeTimers.push(timer);
+
+                    delay += 90;
+
+                });
+
+                delay += 350;
+
+            });
+
+        }
+        function resetPoem() {
+
+            stopAnimation();
+
+            lines.forEach(line => {
+
+                if (line.dataset.original) {
+                    line.innerText = line.dataset.original;
+                }
+
+            });
+
+        }
+
+        /* dom dom*/
+        function createFireflies() {
+
+            removeFireflies();
+
+            for (let i = 0; i < 100; i++) {
+
+                const f = document.createElement("div");
+
+                f.className = "firefly";
+
+                f.style.left = Math.random() * 100 + "%";
+                f.style.bottom = Math.random() * 100 + "px";
+                /* phủ toàn màn hình */
+                f.style.top = Math.random() * 100 + "vh";
+                f.style.animationDuration = (2 + Math.random() * 4) + "s";
+
+                document.body.appendChild(f);
+
+                fireflies.push(f);
+
+            }
+
+        }
+        function removeFireflies() {
+
+            fireflies.forEach(f => f.remove());
+
+            fireflies = [];
+
+        }
+        function stopAnimation() {
+
+            typeTimers.forEach(t => clearTimeout(t));
+
+            typeTimers = [];
+
+        }
+        /*thanh cảm xúc  */
+        function updateReactionUI(stats) {
+
+            const total =
+                stats.sad.length +
+                stats.happy.length +
+                stats.romantic.length +
+                stats.fire.length +
+                stats.cool.length;
+
+            ["sad", "happy", "romantic", "fire", "cool"].forEach(type => {
+
+                const bar = document.getElementById("bar-" + type);
+                const avatarBox = document.getElementById("avatar-" + type);
+
+                const list = stats[type];
+
+                const percent = total ? (list.length / total) * 100 : 0;
+
+                bar.style.width = percent + "%";
+
+                avatarBox.innerHTML = "";
+
+                /* avatar giống zalo */
+
+                list.slice(0, 6).forEach(name => {
+
+                    const av = document.createElement("div");
+
+                    av.className = "avatar";
+
+                    av.innerText = name[0].toUpperCase();
+
+                    avatarBox.appendChild(av);
+
+                });
+
+            });
+
+        }
+        console.log("poemID:", poemID);
+        loadComments();
+        const reactionRef = collection(db, "super_poem", poemID, "reactions");
+
+        onSnapshot(reactionRef, (snap) => {
+
+            const stats = {
+                sad: [],
+                happy: [],
+                romantic: [],
+                fire: [],
+                cool: []
+            };
+
+            snap.forEach(docSnap => {
+
+                const data = docSnap.data();
+
+                (data.reactions || []).forEach(type => {
+
+                    if (stats[type]) {
+                        stats[type].push(data.username);
+                    }
+
+                });
+
+            });
+
+            updateReactionUI(stats);
+
+        });
+        function renderThread(comment, allComments, parentDiv) {
+
+            const div = document.createElement("div");
+
+            div.className = comment.parent ? "reply" : "echo-comment";
+
+            div.dataset.id = comment.id;
+
+            div.innerHTML = commentHTML(comment);
+
+
+            const replyBtn = div.querySelector(".replyBtn");
+
+            if (replyBtn) {
+
+                replyBtn.onclick = () => {
+
+                    const boxReply = document.createElement("div");
+
+                    boxReply.innerHTML = `
+<textarea class="inputBox"></textarea>
+<button class="sendBtn">Gửi</button>
+`;
+
+                    div.appendChild(boxReply);
+
+                    const textarea = boxReply.querySelector("textarea");
+                    const btn = boxReply.querySelector("button");
+
+                    btn.onclick = send;
+
+                    textarea.addEventListener("keydown", e => {
+                        if (e.ctrlKey && e.key === "Enter") send();
+                    });
+
+                    async function send() {
+
+                        const text = textarea.value.trim();
+                        if (!text) return;
+
+                        await createReply(text, comment.id, comment.lineIndex);
+
+                        boxReply.remove();
+
+                    }
+
+                };
+
+            }
+
+
+            parentDiv.appendChild(div);
+
+            /* tìm container reply */
+
+            let replyBox = div.querySelector(".replyList");
+
+            if (!replyBox) {
+
+                replyBox = document.createElement("div");
+
+                replyBox.className = "replyList";
+
+                div.appendChild(replyBox);
+
+            }
+
+            /* tìm reply của comment */
+
+            const replies = allComments.filter(c => c.parent === comment.id);
+
+            /* render đệ quy */
+
+            replies.forEach(r => {
+                renderThread(r, allComments, replyBox);
+            });
+            /* delete */
+
+            const deleteBtn = div.querySelector(".deleteBtn");
+
+            if (deleteBtn) {
+
+                /* nếu không phải chủ comment và không phải admin */
+
+                if (username !== comment.username && user.role !== "admin") {
+
+                    deleteBtn.style.opacity = "0.4";
+                    deleteBtn.style.cursor = "not-allowed";
+                    deleteBtn.disabled = true;
+
+                } else {
+
+                    deleteBtn.onclick = async () => {
+
+                        if (!confirm("Bạn chắc chắn muốn xóa?")) return;
+
+                        await deleteCommentTree(comment.id);
+
+                    };
+
+                }
+
+            }
+
+            /* like */
+
+            const likeBtn = div.querySelector(".likeBtn");
+
+            if (likeBtn) {
+
+                likeBtn.onclick = async () => {
+
+                    const ref = doc(db, "super_poem", poemID, "comment", comment.id);
+
+                    await updateDoc(ref, {
+                        hearts: increment(1)
+                    });
+
+                };
+
+            }
+
+        }
+        function renderLineThread(comment, allComments, parentDiv = null) {
+
+
+
+            let container;
+
+            if (parentDiv) {
+                container = parentDiv;
+            } else {
+
+                const line = lines[comment.lineIndex];
+                if (!line) return;
+
+                const box = line.nextElementSibling;
+                if (!box) return;
+
+                container = box.querySelector(".line-comments");
+                if (!container) return;
+
+            }
+
+            const div = document.createElement("div");
+
+            div.className = comment.parent ? "reply" : "comment";
+
+            div.dataset.id = comment.id;
+
+            div.innerHTML = commentHTML(comment);
+
+            container.appendChild(div);
+
+            /* reply button */
+
+            const replyBtn = div.querySelector(".replyBtn");
+
+            if (replyBtn) {
+
+                replyBtn.onclick = () => {
+
+                    const boxReply = document.createElement("div");
+
+                    boxReply.innerHTML = `
+<textarea class="inputBox"></textarea>
+<button class="sendBtn">Gửi</button>
+`;
+
+                    div.appendChild(boxReply);
+
+                    const textarea = boxReply.querySelector("textarea");
+                    const btn = boxReply.querySelector("button");
+
+                    btn.onclick = send;
+
+                    textarea.addEventListener("keydown", e => {
+                        if (e.ctrlKey && e.key === "Enter") send();
+                    });
+
+                    async function send() {
+
+                        const text = textarea.value.trim();
+                        if (!text) return;
+
+                        await createReply(text, comment.id, comment.lineIndex);
+
+                        boxReply.remove();
+
+                    }
+
+                };
+
+            }
+
+            /* delete */
+
+            const deleteBtn = div.querySelector(".deleteBtn");
+
+            if (deleteBtn) {
+
+                /* nếu không phải chủ comment và không phải admin */
+
+                if (username !== comment.username && user.role !== "admin") {
+
+                    deleteBtn.style.opacity = "0.4";
+                    deleteBtn.style.cursor = "not-allowed";
+                    deleteBtn.disabled = true;
+
+                } else {
+
+                    deleteBtn.onclick = async () => {
+
+                        if (!confirm("Bạn chắc chắn muốn xóa?")) return;
+
+                        await deleteCommentTree(comment.id);
+
+                    };
+
+                }
+
+            }
+
+            /* like */
+
+            const likeBtn = div.querySelector(".likeBtn");
+
+            if (likeBtn) {
+
+                likeBtn.onclick = async () => {
+
+                    const ref = doc(db, "super_poem", poemID, "comment", comment.id);
+
+                    await updateDoc(ref, {
+                        hearts: increment(1)
+                    });
+
+                };
+
+            }
+
+            /* reply container */
+
+            let replyBox = div.querySelector(".replyList");
+
+            if (!replyBox) {
+
+                replyBox = document.createElement("div");
+                replyBox.className = "replyList";
+
+                div.appendChild(replyBox);
+            }
+
+            const replies = allComments.filter(c => c.parent === comment.id);
+
+            replies.forEach(r => {
+                renderLineThread(r, allComments, replyBox);
+            });
+
+        }
+
+        function loadComments() {
+            if (unsubscribeComments) unsubscribeComments();
+            if (commentMode) {
+                const container = document.querySelector(".container");
+
+                if (container) {
+                    container.appendChild(loadingBox);
+                }
+            }
+            unsubscribeComments = onSnapshot(q, (snapshot) => {
+
+                echoList.innerHTML = "";
+                const comments = [];
+
+                snapshot.forEach(docSnap => {
+                    comments.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                /* badge */
+
+
+                /* dư âm */
+
+                comments
+                    .filter(c => !c.parent && c.lineIndex === undefined)
+                    .forEach(c => {
+                        renderThread(c, comments, echoList);
+                    });
+
+            });
+
+        }
+
+        const lineListeners = {};
+        function loadLineComments(lineIndex, box) {
+
+            if (lineListeners[lineIndex]) {
+                lineListeners[lineIndex]();
+            }
+            const qLine = query(
+                collection(db, "super_poem", poemID, "comment"),
+                where("lineIndex", "==", lineIndex),
+                orderBy("created", "asc")
+            );
+
+            lineListeners[lineIndex] = onSnapshot(qLine, (snapshot) => {
+                box.innerHTML = "";
+                loadingBox.remove();
+                const comments = [];
+
+                snapshot.forEach(docSnap => {
+                    comments.push({
+                        id: docSnap.id,
+                        ...docSnap.data()
+                    });
+                });
+
+                comments
+                    .filter(c => !c.parent)
+                    .forEach(c => {
+                        renderLineThread(c, comments, box);
+                    });
+
+            });
+
+        }
+
+        const heartRef = collection(db, "super_poem", poemID, "lineHearts");
+
+        function bindLineEvents() {
+
+            lines.forEach((line, index) => {
+
+                line.onclick = () => {
+
+                    if (!commentMode) return;
+                    if (document.body.classList.contains("super-mode")) return;
+
+                    let box = line.nextElementSibling;
+
+                    /* toggle đóng */
+
+                    if (box && box.classList.contains("comment-box")) {
+
+                        if (lineListeners[index]) {
+                            lineListeners[index]();
+                            delete lineListeners[index];
+                        }
+
+                        box.remove();
+                        return;
+
+                    }
+
+                    /* tạo box */
+
+                    box = document.createElement("div");
+
+                    box.className = "comment-box";
+
+                    box.innerHTML = `
+
+<div class="line-comments"></div>
+
+<textarea class="inputBox"
+placeholder="Viết bình luận của bạn cho dòng này ❤️ "></textarea>
+
+<button class="sendBtn">Gửi</button>
+
+`;
+
+                    line.after(box);
+
+                    const list = box.querySelector(".line-comments");
+
+                    /* load comment */
+
+                    loadLineComments(index, list);
+
+                    const textarea = box.querySelector("textarea");
+                    const btn = box.querySelector("button");
+
+                    btn.onclick = send;
+
+                    textarea.addEventListener("keydown", e => {
+                        if (e.ctrlKey && e.key === "Enter") send();
+                    });
+
+                    async function send() {
+
+                        const text = textarea.value.trim();
+                        if (!text) return;
+
+                        await createLineComment(text, index);
+
+                        textarea.value = "";
+
+                    }
+
+                };
+
+            });
+
+        }
+        function bindLineHearts() {
+
+            lines.forEach((line, index) => {
+
+                const heart = line.querySelector(".line-heart");
+
+                if (!heart) return;
+
+                heart.onclick = async (e) => {
+
+                    e.stopPropagation();
+
+                    const ref = doc(db, "super_poem", poemID, "lineHearts", String(index));
+
+                    await setDoc(ref, {
+                        hearts: increment(1)
+                    }, { merge: true });
+
+                };
+
+            });
+
+        }
+
+        const saveBtn = document.getElementById("savePoem");
+
+        saveBtn.onclick = async () => {
+
+            if (!currentUser) {
+                alert("Bạn cần đăng nhập");
+                return;
+            }
+
+            const ref = doc(
+                db,
+                "users",
+                currentUser.uid,
+                "saved_poems",
+                poemID
+            );
+
+            await setDoc(ref, {
+                poemID: poemID,
+                savedAt: Date.now()
+            });
+
+            alert("Đã lưu vào sổ thơ ❤️");
+
+        };
+        const portal = document.getElementById("spacePortal");
+
+        portal.onclick = () => {
+
+            document.body.style.transition = "0.8s";
+
+            document.body.style.transform = "scale(1.3)";
+            document.body.style.opacity = "0";
+
+            setTimeout(() => {
+
+                history.back();
+
+            }, 600);
+
+        };
+    </script>
+    <script src="../../main_js/iframe.js"></script>
+
+</body>
+
+</html>

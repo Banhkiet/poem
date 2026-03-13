@@ -11,11 +11,14 @@
             background: linear-gradient(135deg, #f6f8ff, #eef2ff);
             margin: 0;
             padding: 40px;
+            overflow: hidden;
         }
 
         .container {
             max-width: 900px;
             margin: auto;
+            display: none;
+
         }
 
         /* profile card */
@@ -82,6 +85,82 @@
         .poem:hover {
             transform: translateY(-5px);
             box-shadow: 0 12px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .loading-title {
+            font-size: 26px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .loading-dots span {
+            animation: blink 1.4s infinite;
+        }
+
+        
+
+        @keyframes blink {
+            0% {
+                opacity: 0.2
+            }
+
+            50% {
+                opacity: 1
+            }
+
+            100% {
+                opacity: 0.2
+            }
+        }
+
+        #loading {
+
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            align-items: center;
+            justify-content: center;
+
+            text-align: center;
+
+            /* nền xanh biển */
+
+
+            color:  #1c6dd0;
+
+            z-index: 9999;
+
+        }
+
+        /* tiêu đề */
+
+        .loading-title {
+
+            font-size: 30px;
+            font-weight: bold;
+
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+
+        }
+
+        /* chữ phụ */
+
+        .loading-sub {
+
+            font-size: 15px;
+
+            margin-top: 10px;
+
+            color:  #1c6dd0;
+
         }
 
         .poem h4 {
@@ -155,6 +234,16 @@
 </head>
 
 <body>
+    <div id="loading" class="loading-title">
+        <span class="loading-dots">
+            📜 Đang tải tài liệu <span>.</span><span>.</span><span>.</span>
+        </span>
+
+        <div class="loading-sub">
+            Xin chờ một chút, web lỏ, load lâu, đợi tí, thông cảm !!!
+        </div>
+
+    </div>
 
     <div class="container">
 
@@ -223,6 +312,10 @@
             if (!user) {
 
                 document.getElementById("name").innerText = "Chưa đăng nhập";
+
+                document.getElementById("loading").style.display = "none";
+                document.querySelector(".container").style.display = "block";
+
                 return;
 
             }
@@ -311,14 +404,16 @@
                 poemsDiv.appendChild(div);
 
             });
-
+            document.getElementById("loading").style.display = "none";
+            document.querySelector(".container").style.display = "block";
         }
         document.getElementById("openDiary").onclick = function () {
 
-            window.location = "diary.html";
+            window.location = "../smart_mode/KHACH/diary.html";
 
         };
     </script>
+    <script src="../main_js/iframe.js"></script>
 
 </body>
 

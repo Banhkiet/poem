@@ -9,22 +9,22 @@ const db = getFirestore(app);
 const params = new URLSearchParams(location.search);
 const id = params.get("id");
 
-async function loadPoem(){
+async function loadPoem() {
 
-const docRef = doc(db,"poems",id);
-const snap = await getDoc(docRef);
+    const docRef = doc(db, "poems", id);
+    const snap = await getDoc(docRef);
 
-if(!snap.exists()) return;
+    if (!snap.exists()) return;
 
-const data = snap.data();
+    const data = snap.data();
 
-document.getElementById("poem-title").innerText = data.title;
-document.getElementById("poem-content").innerText = data.content;
+    document.getElementById("poem-title").innerText = data.title;
+    document.getElementById("poem-content").innerText = data.content;
 
-document.getElementById("poemImage").style.backgroundImage =
-`url(${data.image})`;
+    document.getElementById("poemImage").style.backgroundImage =
+        `url(${data.image})`;
 
-document.getElementById("dynamicStyle").innerHTML = `
+    document.getElementById("dynamicStyle").innerHTML = `
 body{
 background:url(${data.background}) center/cover no-repeat;
 }

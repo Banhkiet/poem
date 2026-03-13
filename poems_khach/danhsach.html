@@ -307,6 +307,8 @@
 
             snapshot.forEach(doc => {
                 const data = doc.data();
+                loadFont(data.fontTitle);
+                loadFont(data.fontContent);
                 poems.push({
                     id: doc.id,
                     title: data.title || "",
@@ -316,6 +318,9 @@
                     username: data.username || "Ẩn danh",
                     date: data.date || data.created || "",
                     type: data.theTho || "",
+                    /* NEW */
+                    fontTitle: data.fontTitle || "",
+                    fontContent: data.fontContent || "",
                     category: Array.isArray(data.theLoai) ? data.theLoai : [data.theLoai]
                 });
 
@@ -363,11 +368,20 @@
                 card.className = "poem-card";
                 card.style.animationDelay = (index * 0.05) + "s";
                 card.innerHTML = `
-    <img src="${p.image || 'img/default.jpg'}">
-    <div class="poem-title">${highlight(p.title, keyword)}${p.audio ? " 🔊" : ""}</div>
-    <div class="poem-date">${formatDate(p.date)}</div>
-    <div class="poem-user">${p.username}</div>
-    `;
+<img src="${p.image || 'img/default.jpg'}">
+
+<div class="poem-title"
+style="font-family:${p.fontTitle || 'inherit'}">
+${highlight(p.title, keyword)}${p.audio ? " 🔊" : ""}
+</div>
+
+<div class="poem-date">${formatDate(p.date)}</div>
+
+<div class="poem-user"
+style="font-family:${p.fontContent || 'inherit'}">
+${p.username}
+</div>
+`;
                 card.onclick = () => { window.location.href = "poem-khachid.html?id=" + p.id; };
                 container.appendChild(card);
             });
@@ -453,9 +467,24 @@
 
         // ===== INIT =====
         window.addEventListener("load", loadData);
+        function loadFont(fontName) {
+            if (!fontName) return;
 
+            const id = "font-" + fontName.replace(/\s+/g, "-");
+
+            if (document.getElementById(id)) return;
+
+            const link = document.createElement("link");
+            link.id = id;
+            link.rel = "stylesheet";
+            link.href = "https://fonts.googleapis.com/css2?family=" +
+                fontName.replace(/ /g, "+") +
+                "&display=swap";
+
+            document.head.appendChild(link);
+        }
     </script>
-<script src="../main_js/iframe.js"></script>
+    <script src="../main_js/iframe.js"></script>
 </body>
 
 </html>

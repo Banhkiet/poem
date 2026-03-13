@@ -1,316 +1,316 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Xem thử bài thơ</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xem thử bài thơ</title>
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-<style>
+    <style>
+        /* ================= LAYOUT CHUNG ================= */
 
-/* ================= LAYOUT CHUNG ================= */
+        body {
+            margin: 0;
+            padding: 70px 0;
+            font-family: 'Georgia', serif;
+            overflow-x: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
 
-body{
-margin:0;
-padding:70px 0;
-font-family:'Georgia', serif;
-overflow-x:hidden;
-background-size:cover;
-background-position:center;
-background-repeat:no-repeat;
-}
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            padding: 0 40px;
+        }
 
-.container{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:40px;
-padding:0 40px;
-}
+        .poem-box {
+            position: relative;
+            background: rgba(255, 255, 255, 0.65);
+            padding: 30px 25px;
+            padding-top: 65px;
+            border-radius: 16px;
+            width: 500px;
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+        }
 
-.poem-box{
-position:relative;
-background:rgba(255,255,255,0.65);
-padding:30px 25px;
-padding-top:65px;
-border-radius:16px;
-width:500px;
-box-shadow:0 12px 28px rgba(0,0,0,0.18);
-}
+        /* ===== TITLE ===== */
 
-/* ===== TITLE ===== */
+        #poem-title {
+            font-size: 34px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 18px;
+            color: #3a2e2e;
+        }
 
-#poem-title{
-font-size:34px;
-font-weight:bold;
-text-align:center;
-margin-bottom:18px;
-color:#3a2e2e;
-}
+        /* ===== CONTENT ===== */
 
-/* ===== CONTENT ===== */
+        #poem-content {
+            line-height: 1.8;
+            font-size: 20px;
+            text-align: center;
+            font-style: italic;
+            white-space: pre-wrap;
+            color: #2b1d1d;
+        }
 
-#poem-content{
-line-height:1.8;
-font-size:20px;
-text-align:center;
-font-style:italic;
-white-space:pre-wrap;
-color:#2b1d1d;
-}
+        /* ===== IMAGE ===== */
 
-/* ===== IMAGE ===== */
+        .poem-image {
+            background-size: cover;
+            background-position: center;
+            width: 300px;
+            height: 400px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+        }
 
-.poem-image{
-background-size:cover;
-background-position:center;
-width:300px;
-height:400px;
-border-radius:12px;
-box-shadow:0 8px 20px rgba(0,0,0,0.25);
-}
+        /* ================= AUDIO ================= */
 
-/* ================= AUDIO ================= */
+        .audio-player {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #fff;
+            padding: 8px 15px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            width: 0;
+            overflow: hidden;
+            opacity: 0;
+            transition: all 0.35s ease;
+        }
 
-.audio-player{
-display:flex;
-align-items:center;
-gap:10px;
-background:#fff;
-padding:8px 15px;
-border-radius:30px;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-width:0;
-overflow:hidden;
-opacity:0;
-transition:all 0.35s ease;
-}
+        .audio-player.show {
+            width: 320px;
+            opacity: 1;
+            display: flex;
+            align-items: center;
+        }
 
-.audio-player.show{
-width:320px;
-opacity:1;
-display:flex;
-align-items:center;
-}
+        .audio-icon {
+            font-size: 22px;
+            color: #444;
+            cursor: pointer;
+            transition: 0.3s;
+            display: none;
+        }
 
-.audio-icon{
-font-size:22px;
-color:#444;
-cursor:pointer;
-transition:0.3s;
-display:none;
-}
+        .audio-wrapper {
+            margin-top: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
 
-.audio-wrapper{
-margin-top:25px;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:15px;
-}
+        .audio-icon:hover {
+            color: #1e88ff;
+        }
 
-.audio-icon:hover{
-color:#1e88ff;
-}
+        .play-btn {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #1e88ff;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
 
-.play-btn{
-width:35px;
-height:35px;
-border-radius:50%;
-background:#1e88ff;
-color:white;
-display:flex;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-}
+        .progress-container {
+            width: 180px;
+            height: 6px;
+            background: #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+        }
 
-.progress-container{
-width:180px;
-height:6px;
-background:#ddd;
-border-radius:10px;
-cursor:pointer;
-position:relative;
-}
+        .progress {
+            height: 100%;
+            width: 0%;
+            background: #1e88ff;
+            border-radius: 10px;
+        }
 
-.progress{
-height:100%;
-width:0%;
-background:#1e88ff;
-border-radius:10px;
-}
-
-.time{
-font-size:13px;
-color:#555;
-min-width:60px;
-}
-
-</style>
+        .time {
+            font-size: 13px;
+            color: #555;
+            min-width: 60px;
+        }
+    </style>
 </head>
 
 <body>
 
-<div class="container">
+    <div class="container">
 
-<div class="poem-box">
+        <div class="poem-box">
 
-<div id="poem-title"></div>
+            <div id="poem-title"></div>
 
-<pre id="poem-content"></pre>
+            <pre id="poem-content"></pre>
 
-<div class="audio-wrapper">
+            <div class="audio-wrapper">
 
-<i class="fa-solid fa-volume-high audio-icon" id="audioIcon"></i>
+                <i class="fa-solid fa-volume-high audio-icon" id="audioIcon"></i>
 
-<div class="audio-player" id="player">
+                <div class="audio-player" id="player">
 
-<div class="play-btn" id="playBtn">
-<i class="fa-solid fa-play"></i>
-</div>
+                    <div class="play-btn" id="playBtn">
+                        <i class="fa-solid fa-play"></i>
+                    </div>
 
-<div class="progress-container" id="progressContainer">
-<div class="progress" id="progress"></div>
-</div>
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress" id="progress"></div>
+                    </div>
 
-<div class="time" id="time">00:00</div>
+                    <div class="time" id="time">00:00</div>
 
-</div>
-</div>
+                </div>
+            </div>
 
-<audio id="audio"></audio>
+            <audio id="audio"></audio>
 
-</div>
+        </div>
 
-<div class="poem-image" id="poemImage"></div>
+        <div class="poem-image" id="poemImage"></div>
 
-</div>
+    </div>
 
-<script>
+    <script>
 
-/* ================= LOAD PREVIEW DATA ================= */
+        /* ================= LOAD PREVIEW DATA ================= */
 
-const data=JSON.parse(localStorage.getItem("preview_poem"));
+        const data = JSON.parse(localStorage.getItem("preview_poem"));
 
-if(!data){
-document.body.innerHTML="<h2>Không có dữ liệu preview</h2>";
-throw "No preview data";
-}
+        if (!data) {
+            document.body.innerHTML = "<h2>Không có dữ liệu preview</h2>";
+            throw "No preview data";
+        }
 
-/* title */
+        /* title */
 
-const title=document.getElementById("poem-title");
-title.innerText=data.title || "";
+        const title = document.getElementById("poem-title");
+        title.innerText = data.title || "";
 
-/* content */
+        /* content */
 
-const content=document.getElementById("poem-content");
-content.textContent=data.content || "";
+        const content = document.getElementById("poem-content");
+        content.textContent = data.content || "";
 
-/* font */
+        /* font */
 
-if(data.fontTitle) title.style.fontFamily=data.fontTitle;
-if(data.fontContent) content.style.fontFamily=data.fontContent;
+        if (data.fontTitle) title.style.fontFamily = data.fontTitle;
+        if (data.fontContent) content.style.fontFamily = data.fontContent;
 
-/* background */
+        /* background */
 
-if(data.bg){
-document.body.style.backgroundImage=`url(${data.bg})`;
-}
+        if (data.bg) {
+            document.body.style.backgroundImage = `url(${data.bg})`;
+        }
 
-/* image */
+        /* image */
 
-if(data.avatar){
-document.getElementById("poemImage").style.backgroundImage=`url(${data.avatar})`;
-}
+        if (data.avatar) {
+            document.getElementById("poemImage").style.backgroundImage = `url(${data.avatar})`;
+        }
 
-/* audio */
+        /* audio */
 
-if(data.audio){
-document.getElementById("audio").src=data.audio;
-}
+        if (data.audio) {
+            document.getElementById("audio").src = data.audio;
+        }
 
-/* ================= AUDIO PLAYER ================= */
+        /* ================= AUDIO PLAYER ================= */
 
-const audio=document.getElementById("audio");
-const audioIcon=document.getElementById("audioIcon");
-const player=document.getElementById("player");
-const playBtn=document.getElementById("playBtn");
-const progress=document.getElementById("progress");
-const progressContainer=document.getElementById("progressContainer");
-const timeDisplay=document.getElementById("time");
+        const audio = document.getElementById("audio");
+        const audioIcon = document.getElementById("audioIcon");
+        const player = document.getElementById("player");
+        const playBtn = document.getElementById("playBtn");
+        const progress = document.getElementById("progress");
+        const progressContainer = document.getElementById("progressContainer");
+        const timeDisplay = document.getElementById("time");
 
-let isOpen=false;
+        let isOpen = false;
 
-audio.addEventListener("loadedmetadata",()=>{
-audioIcon.style.display="inline-block";
-});
+        audio.addEventListener("loadedmetadata", () => {
+            audioIcon.style.display = "inline-block";
+        });
 
-audioIcon.addEventListener("click",()=>{
+        audioIcon.addEventListener("click", () => {
 
-if(!isOpen){
+            if (!isOpen) {
 
-player.classList.add("show");
-audio.play();
-playBtn.innerHTML='<i class="fa-solid fa-pause"></i>';
-isOpen=true;
+                player.classList.add("show");
+                audio.play();
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                isOpen = true;
 
-}else{
+            } else {
 
-audio.pause();
-player.classList.remove("show");
-playBtn.innerHTML='<i class="fa-solid fa-play"></i>';
-isOpen=false;
+                audio.pause();
+                player.classList.remove("show");
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                isOpen = false;
 
-}
+            }
 
-});
+        });
 
-playBtn.addEventListener("click",()=>{
+        playBtn.addEventListener("click", () => {
 
-if(audio.paused){
+            if (audio.paused) {
 
-audio.play();
-playBtn.innerHTML='<i class="fa-solid fa-pause"></i>';
+                audio.play();
+                playBtn.innerHTML = '<i class="fa-solid fa-pause"></i>';
 
-}else{
+            } else {
 
-audio.pause();
-playBtn.innerHTML='<i class="fa-solid fa-play"></i>';
+                audio.pause();
+                playBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
 
-}
+            }
 
-});
+        });
 
-audio.addEventListener("timeupdate",()=>{
+        audio.addEventListener("timeupdate", () => {
 
-if(!audio.duration) return;
+            if (!audio.duration) return;
 
-const percent=(audio.currentTime/audio.duration)*100;
-progress.style.width=percent+"%";
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progress.style.width = percent + "%";
 
-let minutes=Math.floor(audio.currentTime/60);
-let seconds=Math.floor(audio.currentTime%60);
+            let minutes = Math.floor(audio.currentTime / 60);
+            let seconds = Math.floor(audio.currentTime % 60);
 
-if(seconds<10) seconds="0"+seconds;
+            if (seconds < 10) seconds = "0" + seconds;
 
-timeDisplay.textContent=minutes+":"+seconds;
+            timeDisplay.textContent = minutes + ":" + seconds;
 
-});
+        });
 
-progressContainer.addEventListener("click",(e)=>{
+        progressContainer.addEventListener("click", (e) => {
 
-const width=progressContainer.clientWidth;
-const clickX=e.offsetX;
+            const width = progressContainer.clientWidth;
+            const clickX = e.offsetX;
 
-audio.currentTime=(clickX/width)*audio.duration;
+            audio.currentTime = (clickX / width) * audio.duration;
 
-});
+        });
 
-</script>
+    </script>
 
 </body>
+
 </html>
