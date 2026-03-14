@@ -30,7 +30,8 @@
             width: 360px;
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-                margin-top:60px; /* đẩy xuống */
+            margin-top: 60px;
+            /* đẩy xuống */
 
         }
 
@@ -245,8 +246,15 @@
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-auth.js";
-        import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
-
+        import {
+            getFirestore,
+            setDoc,
+            doc,
+            getDocs,
+            collection,
+            query,
+            where
+        } from "https://www.gstatic.com/firebasejs/12.10.0/firebase-firestore.js";
         const firebaseConfig = {
             apiKey: "AIzaSyD5VotnEcZ6hQduMoF5AjL0024x1VTkEu4",
             authDomain: "banhkietgithunbpoem.firebaseapp.com",
@@ -266,7 +274,19 @@
         const teacher = document.getElementById("teacher");
         const friend = document.getElementById("friend");
 
-        teacher.addEventListener("change", () => { if (teacher.checked) { friend.checked = false; } });
+        teacher.addEventListener("change", () => {
+
+            if (teacher.checked) {
+
+                friend.checked = false;
+
+                /* mở trang xác nhận giáo viên */
+
+                window.open("confirm_teacher.html", "_blank");
+
+            }
+
+        });
         friend.addEventListener("change", () => { if (friend.checked) { teacher.checked = false; } });
 
 
@@ -284,14 +304,25 @@
             sendHeight();
         }
 
+        async function usernameExists(username) {
 
+            const q = query(
+                collection(db, "users"),
+                where("username", "==", username)
+            );
+
+            const snap = await getDocs(q);
+
+            return !snap.empty;
+
+        }
         /* REGISTER */
 
         window.register = async function () {
 
-            const fullname = document.getElementById("fullname").value;
-            const username = document.getElementById("username").value;
-            const email = document.getElementById("email").value;
+            const fullname = document.getElementById("fullname").value.trim();
+            const username = document.getElementById("username").value.trim();
+            const email = document.getElementById("email").value.trim();
             const password = document.getElementById("password").value;
 
             const role = teacher.checked ? "teacher" : friend.checked ? "friend" : "";
@@ -300,8 +331,27 @@
             const loading = document.getElementById("registerLoading");
 
             loading.style.display = "block";
+            msg.style.display = "none";
 
             try {
+
+                /* kiểm tra username */
+
+                const exist = await usernameExists(username);
+
+                if (exist) {
+
+                    loading.style.display = "none";
+
+                    msg.className = "message error";
+                    msg.innerText = "Có đứa nào đó đặt tên này rồi, chọn tên khác i";
+                    msg.style.display = "block";
+
+                    return;
+
+                }
+
+                /* tạo tài khoản */
 
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
@@ -311,7 +361,7 @@
                     email,
                     role,
                     admin: false,
-                    created: Date.now(),
+                    created: Date.now()
                 });
 
                 loading.style.display = "none";
@@ -327,7 +377,7 @@
                 loading.style.display = "none";
 
                 msg.className = "message error";
-                msg.innerText = err.code;
+                msg.innerText = translateError(err.code);
 
                 msg.style.display = "block";
 
@@ -367,7 +417,7 @@
                 loading.style.display = "none";
 
                 msg.className = "message error";
-                msg.innerText = err.code;
+                msg.innerText = translateError(err.code);
                 msg.style.display = "block";
 
             }
@@ -399,7 +449,37 @@
         
                 window.addEventListener("resize", sendHeight);
                 */
+        function translateError(code) {
 
+            switch (code) {
+
+                case "auth/email-already-in-use":
+                    return "Email này đã được đăng ký rồi";
+
+                case "auth/invalid-email":
+                    return "Email không đúng định dạng";
+
+                case "auth/weak-password":
+                    return "Mật khẩu phải có ít nhất 6 ký tự";
+
+                case "auth/user-not-found":
+                    return "Không tìm thấy tài khoản";
+
+                case "auth/wrong-password":
+                    return "Sai mật khẩu";
+
+                case "auth/invalid-credential":
+                    return "Sai email hoặc mật khẩu";
+
+                case "auth/too-many-requests":
+                    return "Bạn thử sai quá nhiều lần, hãy thử lại sau";
+
+                default:
+                    return "Có lỗi xảy ra: " + code;
+
+            }
+
+        }
     </script>
     <script src="../main_js/iframe.js"></script>
 </body>

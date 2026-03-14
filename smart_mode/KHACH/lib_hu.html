@@ -2,9 +2,10 @@
 <html lang="vi">
 
 <head>
+
     <meta charset="UTF-8">
     <title>Không gian thơ</title>
-
+    <link rel="../..//favicon.ico" href="data:,">
     <style>
         /* ================= BODY ================= */
 
@@ -49,6 +50,9 @@
             text-align: center;
             margin-bottom: 25px;
             white-space: pre-wrap;
+            text-shadow:
+                0 2px 4px rgba(0, 0, 0, 0.8),
+                0 0 10px rgba(0, 0, 0, 0.6);
 
         }
 
@@ -61,6 +65,9 @@
             line-height: 1.6;
             align-items: center;
             display: flex;
+            color: white;
+            text-shadow:
+                0 1px 3px rgba(0, 0, 0, 0.9);
             white-space: pre-wrap;
             /* giữ khoảng cách và thụt dòng */
 
@@ -716,6 +723,26 @@
             background-attachment: fixed;
         }
 
+        /* ===== NORMAL MODE BLUR BACKGROUND ===== */
+
+        body.normal-mode::before {
+
+            content: "";
+
+            position: fixed;
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
+
+            z-index: -1;
+
+        }
+
         /* portal sáng */
 
         body.normal-mode #spacePortal .portal-core {
@@ -959,15 +986,26 @@
                 loadFont(data.fontTitle);
                 loadFont(data.fontContent);
 
+                await document.fonts.ready;
+
                 /* title */
 
                 const titleEl = document.querySelector(".title");
                 titleEl.innerText = data.title || "";
 
-                /* font tiêu đề */
                 if (data.fontTitle) {
-                    titleEl.style.fontFamily = data.fontTitle;
+                    titleEl.style.fontFamily = `"${data.fontTitle}", serif`;
                 }
+                console.log("===== FONT DEBUG =====");
+                console.log("Title Font:", data.fontTitle || "default");
+                console.log("Content Font:", data.fontContent || "default");
+                console.log("======================");
+                /* title */
+
+                titleEl.innerText = data.title || "";
+
+                /* font tiêu đề */
+                
 
                 /* load poem */
 
@@ -996,7 +1034,7 @@
 
                     /* font nội dung */
                     if (data.fontContent) {
-                        div.style.fontFamily = data.fontContent;
+                        div.style.fontFamily = `"${data.fontContent}", serif`;
                     }
 
                     div.innerHTML = `
@@ -1201,17 +1239,20 @@
 
             if (active) {
 
-                document.body.classList.remove("normal-mode");
+                /* ===== BẬT SUPER MODE ===== */
 
+                document.body.classList.remove("normal-mode");
                 document.body.style.backgroundImage = "none";
 
-                /* chỉ tắt comment theo dòng */
-
+                /* tắt comment theo dòng */
                 commentMode = false;
                 toggleBtn.classList.remove("active");
                 toggleBtn.innerText = "💬 Bật comment theo dòng";
 
-                /* KHÔNG khóa reply nữa */
+                /* đóng comment box */
+                document.querySelectorAll(".comment-box").forEach(e => e.remove());
+
+                /* KHÔNG TẮT lineHearts listener nữa */
 
                 musicControl.style.display = "block";
 
@@ -1222,6 +1263,8 @@
                 createFireflies();
 
             } else {
+
+                /* ===== THOÁT SUPER MODE ===== */
 
                 document.body.classList.remove("super-mode");
                 document.body.classList.add("normal-mode");
@@ -1248,21 +1291,38 @@
                 currentUser = user;
 
                 const userRef = doc(db, "users", user.uid);
-
                 const snap = await getDoc(userRef);
 
                 if (snap.exists()) {
-                    username = snap.data().username || "Khách";
+
+                    const data = snap.data();
+
+                    username = data.username || "Khách";
+                    currentUser.role = data.role || "user";
+
+                    /* ===== CHECK ADMIN ===== */
+
+                    if (currentUser.role === "admin") {
+
+                        console.log("✅ Người đang đăng nhập là ADMIN");
+
+                    } else {
+
+                        console.log("❌ Đéo phải admin");
+
+                    }
+
                 }
 
-                console.log("Đăng nhập:", username);
-
             } else {
+
+                console.log("⚠️ Chưa đăng nhập");
 
                 username = "Khách";
                 currentUser = null;
 
             }
+            loadComments();
 
         });
         /* load */
@@ -1300,6 +1360,8 @@
                     uid: currentUser.uid,
                     username: username,
                     text: text,
+                    parent: null,
+
                     created: Date.now(),
                     hearts: 0
                 }
@@ -1315,6 +1377,7 @@
 
         function updateLines() {
             lines = document.querySelectorAll(".line");
+
         }
 
         const toggleBtn = document.getElementById("toggleComment");
@@ -1578,7 +1641,6 @@ ${data.username}
 
         }
         console.log("poemID:", poemID);
-        loadComments();
         const reactionRef = collection(db, "super_poem", poemID, "reactions");
 
         onSnapshot(reactionRef, (snap) => {
@@ -1692,9 +1754,12 @@ ${data.username}
 
                 /* nếu không phải chủ comment và không phải admin */
 
-                if (username !== comment.username && user.role !== "admin") {
+                const isOwner = currentUser && comment.uid === currentUser.uid;
+                const isAdmin = currentUser && currentUser.role === "admin";
 
-                    deleteBtn.style.opacity = "0.4";
+                if (!isOwner && !isAdmin) {
+
+                    deleteBtn.style.opacity = "0.35";
                     deleteBtn.style.cursor = "not-allowed";
                     deleteBtn.disabled = true;
 
@@ -1811,9 +1876,12 @@ ${data.username}
 
                 /* nếu không phải chủ comment và không phải admin */
 
-                if (username !== comment.username && user.role !== "admin") {
+                const isOwner = currentUser && comment.uid === currentUser.uid;
+                const isAdmin = currentUser && currentUser.role === "admin";
 
-                    deleteBtn.style.opacity = "0.4";
+                if (!isOwner && !isAdmin) {
+
+                    deleteBtn.style.opacity = "0.35";
                     deleteBtn.style.cursor = "not-allowed";
                     deleteBtn.disabled = true;
 
@@ -1828,7 +1896,6 @@ ${data.username}
                     };
 
                 }
-
             }
 
             /* like */
@@ -2081,6 +2148,35 @@ placeholder="Viết bình luận của bạn cho dòng này ❤️ "></textarea>
             }, 600);
 
         };
+        function initLineHearts() {
+
+            const heartRef = collection(db, "super_poem", poemID, "lineHearts");
+
+            onSnapshot(heartRef, (snap) => {
+
+                snap.forEach(docSnap => {
+
+                    const index = Number(docSnap.id);
+
+                    const hearts = docSnap.data().hearts || 0;
+
+                    const line = lines[index];
+                    if (!line) return;
+
+                    const heart = line.querySelector(".line-heart");
+
+                    if (heart) {
+                        heart.innerHTML = "❤️ " + hearts;
+                    }
+
+                });
+
+            });
+
+        }
+        document.fonts.ready.then(() => {
+            console.log("Fonts loaded:", document.fonts);
+        });
     </script>
     <script src="../../main_js/iframe.js"></script>
 
